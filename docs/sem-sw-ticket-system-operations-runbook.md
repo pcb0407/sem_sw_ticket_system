@@ -1,4 +1,4 @@
-﻿# SEM SW Ticket System Operations Runbook
+# SEM SW Ticket System Operations Runbook
 
 Use this runbook as the starting point for a derived product. Replace every `TBD` with the real owner, channel, dashboard, or procedure before production launch.
 

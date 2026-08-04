@@ -1,4 +1,4 @@
-﻿# SEM SW Ticket System TDD Guide
+# SEM SW Ticket System TDD Guide
 
 The template currently has a small behavioral surface. Test coverage should grow with each product feature that is derived from it.
 

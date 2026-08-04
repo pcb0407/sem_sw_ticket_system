@@ -1,4 +1,4 @@
-﻿# SEM SW Ticket System Test Evidence Record
+# SEM SW Ticket System Test Evidence Record
 
 Use this record for each derived product release candidate. Replace every `TBD`, `pending`, and `not run` value with actual evidence before release approval.
 

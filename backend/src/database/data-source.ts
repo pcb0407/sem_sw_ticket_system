@@ -1,4 +1,4 @@
-﻿import "reflect-metadata";
+import "reflect-metadata";
 
 import * as path from "node:path";
 import { createPlatformCliDataSource } from "@sem/platform-backend";

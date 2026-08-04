@@ -1,4 +1,4 @@
-﻿# GitHub Copilot Instructions
+# GitHub Copilot Instructions
 
 This project is the SEM SW Ticket System system.  
 Use this file only for project-specific working rules. Global quality, security, testing, and reporting standards are defined in [AGENTS.md](../AGENTS.md).

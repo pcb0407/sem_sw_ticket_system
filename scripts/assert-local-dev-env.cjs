@@ -1,4 +1,4 @@
-﻿const fs = require("fs");
+const fs = require("fs");
 const path = require("path");
 const { spawnSync } = require("node:child_process");
 const { resolveLocalDevConfig } = require("./local-dev-defaults.cjs");

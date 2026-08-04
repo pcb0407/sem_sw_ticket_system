@@ -1,4 +1,4 @@
-﻿# SEM SW Ticket System Commercial Readiness
+# SEM SW Ticket System Commercial Readiness
 
 Status date: 2026-06-28
 

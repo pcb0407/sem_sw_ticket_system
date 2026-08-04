@@ -1,4 +1,4 @@
-﻿// Ensures the common platform submodule is installed and built so the bundle
+// Ensures the common platform submodule is installed and built so the bundle
 // workspaces (@ticket-system/backend, @ticket-system/shared, @ticket-system/frontend) can resolve the file: deps.
 //
 // Builds the platform packages from the common-platform workspace root so they share

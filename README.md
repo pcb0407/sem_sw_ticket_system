@@ -1,4 +1,4 @@
-﻿# SEM SW Ticket System
+# SEM SW Ticket System
 
 Starter web application template for future SEM SW apps. Built on the [SEM SW common web platform](./common-platform/README.md) and able to reuse a sibling `sem_sw_common_web_platform` checkout through the local `common-platform` path.
 

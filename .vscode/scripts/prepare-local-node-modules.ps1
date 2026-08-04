@@ -1,4 +1,4 @@
-﻿param(
+param(
   [string]$WorkspaceRoot,
   [string]$BasePath
 )

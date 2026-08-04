@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Stop'
 
 if ($args.Count -eq 0) {
   & (Join-Path $PSScriptRoot 'invoke-common-apphost-script.ps1') 'wait-fullstack-debug-ready.ps1' -TimeoutSeconds 300

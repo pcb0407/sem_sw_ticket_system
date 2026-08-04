@@ -1,4 +1,4 @@
-﻿# SEM SW Ticket System Security Review Record
+# SEM SW Ticket System Security Review Record
 
 Use this record for each derived product release candidate. Replace every `TBD` value with environment-specific evidence before go-live.
 

@@ -1,4 +1,4 @@
-﻿# SEM SW Ticket System Design Spec
+# SEM SW Ticket System Design Spec
 
 See the project root [README](../README.md) for quick start and current workspace/runtime details.
 

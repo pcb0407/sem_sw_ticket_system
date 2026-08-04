@@ -1,4 +1,4 @@
-﻿{
+{
   "nodeEnv": "development",
   "apphostRuntime": "local",
   "dockerComposeFile": "docker-compose.yml",

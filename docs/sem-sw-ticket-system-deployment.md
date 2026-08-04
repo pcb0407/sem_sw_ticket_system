@@ -1,4 +1,4 @@
-﻿# SEM SW Ticket System Deployment Notes
+# SEM SW Ticket System Deployment Notes
 
 ## Planning status
 

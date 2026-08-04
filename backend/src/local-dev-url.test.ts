@@ -1,4 +1,4 @@
-﻿import {
+import {
   getBackendApiPrefix,
   getBackendListenHost,
   getBackendPort,

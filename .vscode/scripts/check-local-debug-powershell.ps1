@@ -1,4 +1,4 @@
-﻿param(
+param(
   [ValidateSet('apphost', 'frontend', 'backend-debug')]
   [string]$Target = 'apphost',
 

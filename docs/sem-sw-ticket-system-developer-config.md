@@ -1,4 +1,4 @@
-﻿# SEM SW Ticket System Developer Configuration
+# SEM SW Ticket System Developer Configuration
 
 This document lists the configuration surfaces that template developers are expected to touch during local development, debugging, platform linking, and deployment preparation.
 

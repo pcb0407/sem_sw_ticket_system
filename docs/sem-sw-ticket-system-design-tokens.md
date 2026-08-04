@@ -1,4 +1,4 @@
-﻿# SEM SW Ticket System Design Tokens
+# SEM SW Ticket System Design Tokens
 
 The template inherits most visual tokens from `@sem/platform-frontend`. New application UI should reuse those platform primitives instead of creating one-off color, spacing, badge, or panel styles.
 

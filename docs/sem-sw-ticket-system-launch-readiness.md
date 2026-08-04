@@ -1,4 +1,4 @@
-﻿# SEM SW Ticket System Launch Readiness Record
+# SEM SW Ticket System Launch Readiness Record
 
 Use this record as the final commercial launch gate for a derived product. Replace every `TBD`, `pending`, and `not run` value with real evidence before reporting commercial-product readiness as 100%.
 

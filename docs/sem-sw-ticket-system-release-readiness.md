@@ -1,4 +1,4 @@
-﻿# SEM SW Ticket System Release Readiness Checklist
+# SEM SW Ticket System Release Readiness Checklist
 
 Use this checklist when turning the template into a deployable product. Keep one completed copy per release candidate in the derived product's release records.
 

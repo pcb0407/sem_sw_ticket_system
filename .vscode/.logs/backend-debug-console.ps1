@@ -1,5 +1,5 @@
 ﻿$ErrorActionPreference = 'Stop'
-try { $host.UI.RawUI.WindowTitle = 'SEM SW Ticket System Backend Debug' } catch {}
+try { $host.UI.RawUI.WindowTitle = 'sem sw ticket system Backend Debug' } catch {}
 function Write-ApphostConsoleStateFile([string]$path, [string]$json) {
   $attempt = 0
   while ($true) {

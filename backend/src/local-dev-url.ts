@@ -1,4 +1,4 @@
-﻿export type LocalDevEnv = Record<string, string | undefined>;
+export type LocalDevEnv = Record<string, string | undefined>;
 
 const DEFAULT_FRONTEND_PROTOCOL = "http";
 const DEFAULT_FRONTEND_HOST = "127.0.0.1";

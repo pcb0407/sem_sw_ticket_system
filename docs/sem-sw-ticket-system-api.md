@@ -1,4 +1,4 @@
-﻿# SEM SW Ticket System API
+# SEM SW Ticket System API
 
 Swagger UI is available in local development when Swagger is enabled:
 

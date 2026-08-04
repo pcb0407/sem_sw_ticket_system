@@ -1,4 +1,4 @@
-﻿import { Logger, Module, OnModuleInit } from "@nestjs/common";
+import { Logger, Module, OnModuleInit } from "@nestjs/common";
 import * as path from "node:path";
 
 import {

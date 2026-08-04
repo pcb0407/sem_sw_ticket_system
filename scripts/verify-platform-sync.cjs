@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 
 const { existsSync, readFileSync } = require("node:fs");
 const path = require("node:path");

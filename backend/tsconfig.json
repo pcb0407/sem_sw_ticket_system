@@ -1,4 +1,4 @@
-﻿{
+{
   "extends": "../common-platform/scripts/tsconfig.backend-app.json",
   "compilerOptions": {
     "ignoreDeprecations": "5.0",

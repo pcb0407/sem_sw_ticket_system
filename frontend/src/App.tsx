@@ -1,4 +1,4 @@
-﻿import { BarChart3, Compass, ListChecks } from "lucide-react";
+import { BarChart3, Compass, ListChecks } from "lucide-react";
 import { Link, matchPath } from "react-router-dom";
 import clsx from "clsx";
 import { UserRole } from "@sem/platform-shared";
