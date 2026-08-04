@@ -1,0 +1,21 @@
+node_modules/
+common-platform/
+common-platform/node_modules/
+common-platform/packages/*/node_modules/
+**/node_modules/
+dist/
+build/
+output/
+coverage/
+.turbo/
+.next/
+*.log
+*.tsbuildinfo
+backend/tsconfig.shadow.json
+backend/.apphost-tsconfig.shadow.json
+.DS_Store
+Thumbs.db
+
+# Codex local state
+.codex/
+.codex-*/

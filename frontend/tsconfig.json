@@ -1,0 +1,37 @@
+﻿{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "useDefineForClassFields": true,
+    "noEmit": true,
+    "incremental": true,
+    "ignoreDeprecations": "5.0",
+    "tsBuildInfoFile": "../output/frontend/tsconfig.tsbuildinfo",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@ticket-system/shared": ["../shared/src/index.ts"],
+      "react/jsx-runtime": [
+        "./node_modules/@types/react/jsx-runtime.d.ts",
+        "../node_modules/@types/react/jsx-runtime.d.ts"
+      ],
+      "@sem/platform-frontend": ["../common-platform/packages/platform-frontend/src/index.ts"],
+      "@sem/platform-frontend/app": ["../common-platform/packages/platform-frontend/src/app/index.ts"],
+      "@sem/platform-frontend/components": ["../common-platform/packages/platform-frontend/src/components/index.ts"],
+      "@sem/platform-frontend/features/auth": ["../common-platform/packages/platform-frontend/src/features/auth/index.ts"],
+      "@sem/platform-frontend/features/navigation": ["../common-platform/packages/platform-frontend/src/features/navigation/index.ts"],
+      "@sem/platform-frontend/features/notifications": ["../common-platform/packages/platform-frontend/src/features/notifications/index.ts"],
+      "@sem/platform-frontend/features/runtime-logs": ["../common-platform/packages/platform-frontend/src/features/runtime-logs/index.ts"],
+      "@sem/platform-frontend/features/theme": ["../common-platform/packages/platform-frontend/src/features/theme/index.ts"],
+      "@sem/platform-frontend/layouts": ["../common-platform/packages/platform-frontend/src/layouts/index.ts"],
+      "@sem/platform-frontend/pages": ["../common-platform/packages/platform-frontend/src/pages/index.ts"],
+      "@sem/platform-frontend/services": ["../common-platform/packages/platform-frontend/src/services/index.ts"],
+      "@sem/platform-shared": ["../common-platform/packages/platform-shared/src/index.ts"]
+    }
+  },
+  "include": ["src", "vite.config.ts"],
+  "exclude": ["**/*.test.ts", "**/*.test.tsx"]
+}

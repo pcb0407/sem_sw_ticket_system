@@ -1,0 +1,46 @@
+{
+  "product": {
+    "name": "TBD",
+    "slug": "tbd-product",
+    "packageName": "@example/derived-product",
+    "displayName": "TBD"
+  },
+  "owners": {
+    "productOwner": "TBD",
+    "releaseOwner": "TBD",
+    "operationsOwner": "TBD",
+    "securityOwner": "TBD",
+    "supportChannel": "TBD"
+  },
+  "runtime": {
+    "frontendBaseUrl": "https://example.contoso.com",
+    "backendBaseUrl": "https://example.contoso.com",
+    "apiPrefix": "api",
+    "cookieName": "TBD"
+  },
+  "database": {
+    "engine": "TBD",
+    "name": "TBD",
+    "migrationOwner": "TBD"
+  },
+  "security": {
+    "secretStore": "TBD",
+    "seedAdminIdentitySource": "TBD"
+  },
+  "domain": {
+    "primaryNavigationLabel": "TBD",
+    "primaryEntityName": "TBD",
+    "primaryRoute": "/tbd",
+    "roleModel": [
+      "TBD"
+    ],
+    "criticalJourneys": [
+      "TBD"
+    ]
+  },
+  "release": {
+    "productizationDecision": "pending",
+    "approver": "TBD",
+    "approvalDate": "TBD"
+  }
+}

@@ -1,0 +1,91 @@
+name: Release Readiness
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      frontend_url:
+        description: Deployed frontend URL for smoke:deployment
+        required: false
+        type: string
+      backend_url:
+        description: Deployed backend URL for smoke:deployment
+        required: false
+        type: string
+      api_prefix:
+        description: API prefix
+        required: false
+        default: api
+        type: string
+      swagger_path:
+        description: Swagger path
+        required: false
+        default: docs
+        type: string
+      expect_swagger_public:
+        description: Expect Swagger to be public
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  verify-release:
+    name: Verify Release Gate
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js launcher
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Prepare dependencies
+        run: npm run deps:ci
+
+      - name: Verify release
+        run: npm run verify:release
+
+  deployment-smoke:
+    name: Deployment Smoke
+    runs-on: windows-latest
+    timeout-minutes: 15
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' &&
+      inputs.frontend_url != '' &&
+      inputs.backend_url != '' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js launcher
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Prepare dependencies
+        run: npm run deps:ci
+
+      - name: Smoke deployed environment
+        env:
+          DEPLOY_SMOKE_FRONTEND_URL: ${{ inputs.frontend_url }}
+          DEPLOY_SMOKE_BACKEND_URL: ${{ inputs.backend_url }}
+          DEPLOY_SMOKE_API_PREFIX: ${{ inputs.api_prefix }}
+          DEPLOY_SMOKE_SWAGGER_PATH: ${{ inputs.swagger_path }}
+          DEPLOY_SMOKE_EXPECT_SWAGGER_PUBLIC: ${{ inputs.expect_swagger_public && '1' || '0' }}
+        run: npm run smoke:deployment

@@ -1,0 +1,104 @@
+{
+  "environments": [
+    {
+      "name": "staging",
+      "frontendUrl": "https://example-staging.contoso.com",
+      "backendUrl": "https://example-staging.contoso.com",
+      "apiBasePath": "/api",
+      "dns": {
+        "record": "TBD",
+        "tlsCertificateOwner": "TBD"
+      },
+      "hosting": {
+        "frontend": "TBD",
+        "backend": "TBD"
+      },
+      "database": {
+        "engine": "TBD",
+        "host": "TBD",
+        "name": "TBD",
+        "backupPolicy": "TBD",
+        "restoreDrillEvidence": "TBD",
+        "migrationEvidence": "TBD",
+        "rollbackEvidence": "TBD"
+      },
+      "secrets": {
+        "store": "TBD",
+        "sessionSecretName": "TBD",
+        "jwtSecretName": "TBD",
+        "dbPasswordSecretName": "TBD",
+        "rotationOwner": "TBD"
+      },
+      "observability": {
+        "logs": "TBD",
+        "metrics": "TBD",
+        "alerts": "TBD",
+        "dashboardUrl": "https://example-observability.contoso.com",
+        "incidentChannel": "TBD"
+      },
+      "checks": {
+        "productionEnv": "not run",
+        "deploymentSmoke": "not run",
+        "authenticatedSmoke": "not run",
+        "swaggerPolicy": "pending"
+      },
+      "release": {
+        "rollbackOwner": "TBD",
+        "artifactRetention": "TBD",
+        "decision": "pending",
+        "approver": "TBD",
+        "approvalDate": "TBD"
+      }
+    },
+    {
+      "name": "production",
+      "frontendUrl": "https://example.contoso.com",
+      "backendUrl": "https://example.contoso.com",
+      "apiBasePath": "/api",
+      "dns": {
+        "record": "TBD",
+        "tlsCertificateOwner": "TBD"
+      },
+      "hosting": {
+        "frontend": "TBD",
+        "backend": "TBD"
+      },
+      "database": {
+        "engine": "TBD",
+        "host": "TBD",
+        "name": "TBD",
+        "backupPolicy": "TBD",
+        "restoreDrillEvidence": "TBD",
+        "migrationEvidence": "TBD",
+        "rollbackEvidence": "TBD"
+      },
+      "secrets": {
+        "store": "TBD",
+        "sessionSecretName": "TBD",
+        "jwtSecretName": "TBD",
+        "dbPasswordSecretName": "TBD",
+        "rotationOwner": "TBD"
+      },
+      "observability": {
+        "logs": "TBD",
+        "metrics": "TBD",
+        "alerts": "TBD",
+        "dashboardUrl": "https://example-observability.contoso.com",
+        "incidentChannel": "TBD"
+      },
+      "checks": {
+        "productionEnv": "not run",
+        "deploymentSmoke": "not run",
+        "authenticatedSmoke": "not run",
+        "swaggerPolicy": "pending"
+      },
+      "release": {
+        "rollbackOwner": "TBD",
+        "artifactRetention": "TBD",
+        "decision": "pending",
+        "approver": "TBD",
+        "approvalDate": "TBD"
+      }
+    }
+  ]
+}

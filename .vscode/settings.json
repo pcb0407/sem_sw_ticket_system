@@ -1,0 +1,47 @@
+﻿{
+    "github.copilot.chat.codeGeneration.useInstructionFiles":  true,
+    "files.exclude": {
+        "**/node_modules": true,
+        "**/node_modules/**": true,
+        "**/win32-*-node*/root/**": true
+    },
+    "files.watcherExclude": {
+        "**/node_modules/**": true,
+        "**/win32-*-node*/root/**": true
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/node_modules/**": true,
+        "**/win32-*-node*/root/**": true
+    },
+    "js/ts.tsserver.experimental.enableProjectDiagnostics": false,
+    "js/ts.tsserver.watchOptions": {
+        "excludeDirectories": [
+            "**/.git",
+            "**/dist",
+            "**/node_modules",
+            "**/node_modules/**",
+            "**/runtime-logs",
+            "**/win32-*-node*/root/**"
+        ],
+        "excludeFiles": [
+            "**/node_modules/**/tsconfig.json"
+        ]
+    },
+    "css.lint.unknownAtRules": "ignore",
+    "workbench.browser.enableChatTools":  true,
+    "pump.apphost.fullstackDebugReadyTimeoutSeconds": 0,
+    "pump.apphost.backendDebugPort": 9231,
+    "pump.apphost.browserDesktopDeviceScaleFactor": 1,
+    "pump.apphost.browserDesktopWindowSize": "1440,1024",
+    "pump.apphost.browserHighDpiSupport": 1,
+    "pump.apphost.browserMobileDeviceScaleFactor": 1,
+    "pump.apphost.browserMobileWindowSize": "430,932",
+    "pump.apphost.browserTabletDeviceScaleFactor": 1,
+    "pump.apphost.browserTabletWindowSize": "1024,1366",
+    "pump.apphost.frontendUrl": "http://127.0.0.1:5173",
+    "pump.apphost.hostOsArchitecture": "x64",
+    "pump.apphost.runtime": "local",
+    "pump.apphost.swaggerHttpUrl": "http://127.0.0.1:3001/docs",
+    "pump.apphost.swaggerUrl": "http://127.0.0.1:3001/docs"
+}

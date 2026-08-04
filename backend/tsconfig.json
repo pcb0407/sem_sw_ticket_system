@@ -1,0 +1,14 @@
+﻿{
+  "extends": "../common-platform/scripts/tsconfig.backend-app.json",
+  "compilerOptions": {
+    "ignoreDeprecations": "5.0",
+    "paths": {
+      "@ticket-system/shared": ["../shared/dist/cjs/index.d.ts"]
+    },
+    "outDir": "dist",
+    "rootDir": "src",
+    "tsBuildInfoFile": "../output/backend/tsconfig.tsbuildinfo"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/*.test.ts", "node_modules", "dist"]
+}

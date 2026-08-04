@@ -1,0 +1,880 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "apphost:reload-window",
+      "type": "shell",
+      "command": "cmd.exe /c start \"\" \"vscode://command/workbench.action.reloadWindow\"",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "apphost",
+        "echo": true,
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "shared:build",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/build-shared.ps1'",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost"
+      }
+    },
+    {
+      "label": "apphost:sync-local-dev-config",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/sync-local-dev-config.ps1'",
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:backend",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/start-apphost-service.ps1' -Target backend",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "isBackground": true,
+      "dependsOn": [
+        "apphost:sync-local-dev-config",
+        "shared:build"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "apphost",
+        "echo": true,
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": [
+        {
+          "owner": "nest",
+          "pattern": {
+            "regexp": "^([^\\s].*)\\((\\d+|\\d+,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+)\\s*:\\s*(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          },
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".*(Starting compilation|File change detected).*",
+            "endsPattern": ".*Nest application successfully started.*"
+          }
+        }
+      ]
+    },
+    {
+      "label": "apphost:backend:debug",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/start-apphost-service.ps1' -Target backend-debug",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "isBackground": true,
+      "dependsOn": [
+        "apphost:sync-local-dev-config",
+        "shared:build"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "apphost",
+        "echo": true,
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": [
+        {
+          "owner": "nest-debug",
+          "pattern": {
+            "regexp": "^([^\\s].*)\\((\\d+|\\d+,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+)\\s*:\\s*(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          },
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".*(Starting compilation|File change detected|Debugger listening).*",
+            "endsPattern": ".*(Debugger listening on ws://.*/.*|Nest application successfully started).*"
+          }
+        }
+      ]
+    },
+    {
+      "label": "apphost:prelaunch-backend-debug",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/apphost-prelaunch-backend-debug.ps1'",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "apphost",
+        "echo": true,
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:frontend",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/start-apphost-service.ps1' -Target frontend",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "isBackground": true,
+      "dependsOn": [
+        "apphost:sync-local-dev-config",
+        "shared:build"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "apphost",
+        "echo": true,
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": [
+        {
+          "owner": "vite",
+          "pattern": {
+            "regexp": "^([^\\s].*)\\((\\d+|\\d+,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+)\\s*:\\s*(.*)$",
+            "file": 1,
+            "location": 2,
+            "severity": 3,
+            "code": 4,
+            "message": 5
+          },
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".*VITE.*",
+            "endsPattern": ".*(ready in|Local:).*"
+          }
+        }
+      ]
+    },
+    {
+      "label": "apphost:wait-frontend",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/wait-local-dev-endpoint.ps1' -Target frontend",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:kill-frontend-port",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/kill-local-dev-target.ps1' -Target frontend",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:kill-backend-port",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/kill-local-dev-target.ps1' -Target backend",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:kill-backend-debug",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/kill-local-dev-target.ps1' -Target backend-debug",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:kill-dev-ports",
+      "dependsOn": [
+        "apphost:kill-backend-port",
+        "apphost:kill-frontend-port"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:wait-backend",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/wait-local-dev-endpoint.ps1' -Target backend",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:start",
+      "dependsOn": [
+        "apphost:sync-local-dev-config",
+        "apphost:kill-dev-ports",
+        "shared:build",
+        "apphost:backend",
+        "apphost:wait-backend",
+        "apphost:open-swagger",
+        "apphost:frontend",
+        "apphost:wait-frontend"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:edge",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/apphost-prelaunch-edge.ps1'",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "apphost",
+        "echo": true,
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:edge:background",
+      "type": "shell",
+      "command": "$env:VSCODE_APPHOST_PRELAUNCH_NONBLOCKING='1'; & '${workspaceFolder}/.vscode/scripts/apphost-prelaunch-edge.ps1'",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "apphost",
+        "echo": true,
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:open-frontend",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/open-frontend-edge.ps1' -ProfileName '.edge-desktop-profile' -WindowSize '${config:pump.apphost.browserDesktopWindowSize}' -HighDpiSupport ${config:pump.apphost.browserHighDpiSupport} -DeviceScaleFactor ${config:pump.apphost.browserDesktopDeviceScaleFactor} -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36 Edg/136.0.0.0'",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:open-frontend:mobile",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/open-frontend-edge.ps1' -ProfileName '.edge-frontend-profile' -WindowSize '${config:pump.apphost.browserMobileWindowSize}' -HighDpiSupport ${config:pump.apphost.browserHighDpiSupport} -DeviceScaleFactor ${config:pump.apphost.browserMobileDeviceScaleFactor} -UserAgent 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1'",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:open-frontend:tablet",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/open-frontend-edge.ps1' -ProfileName '.edge-tablet-profile' -WindowSize '${config:pump.apphost.browserTabletWindowSize}' -HighDpiSupport ${config:pump.apphost.browserHighDpiSupport} -DeviceScaleFactor ${config:pump.apphost.browserTabletDeviceScaleFactor} -UserAgent 'Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1'",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:open-swagger",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/open-swagger-edge.ps1' -Protocols http -ProfileName '.edge-swagger-profile' -WindowSize '${config:pump.apphost.browserDesktopWindowSize}' -HighDpiSupport ${config:pump.apphost.browserHighDpiSupport} -DeviceScaleFactor ${config:pump.apphost.browserDesktopDeviceScaleFactor}",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:open-swagger:http",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/open-swagger-edge.ps1' -Protocols http -ProfileName '.edge-swagger-http-profile' -WindowSize '${config:pump.apphost.browserDesktopWindowSize}' -HighDpiSupport ${config:pump.apphost.browserHighDpiSupport} -DeviceScaleFactor ${config:pump.apphost.browserDesktopDeviceScaleFactor}",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:kill-edge-debug-profile",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/kill-edge-debug-profile.ps1'",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:cleanup-apphost",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/cleanup-local-debug.ps1' -Target apphost",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:cleanup-docker-state",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/cleanup-docker-apphost.ps1'",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "apphost",
+        "echo": true,
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:cleanup-apphost:docker",
+      "dependsOn": [
+        "apphost:kill-edge-debug-profile",
+        "apphost:cleanup-apphost",
+        "apphost:cleanup-docker-state"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:cleanup-frontend-debug",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/cleanup-local-debug.ps1' -Target frontend",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:cleanup-frontend:docker",
+      "dependsOn": [
+        "apphost:kill-edge-debug-profile",
+        "apphost:cleanup-frontend-debug",
+        "apphost:cleanup-docker-state"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:cleanup-backend-debug",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/cleanup-local-debug.ps1' -Target backend-debug",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:prelaunch-fullstack-debug",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/apphost-prelaunch-fullstack-debug.ps1'",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "apphost",
+        "echo": true,
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:wait-fullstack-debug-ready",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/wait-fullstack-debug-ready.ps1'",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:ensure-fullstack-debug-ready",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/apphost-prelaunch-fullstack-debug.ps1'; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; & '${workspaceFolder}/.vscode/scripts/wait-fullstack-debug-ready.ps1'",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "apphost",
+        "echo": true,
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:open-fullstack-all-browsers",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/open-fullstack-all-browsers.ps1'",
+      "options": {
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "apphost",
+        "close": true,
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:fullstack-debug:open-ready:all",
+      "dependsOn": [
+        "apphost:ensure-fullstack-debug-ready",
+        "apphost:open-fullstack-all-browsers"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:fullstack-debug:headless",
+      "dependsOn": [
+        "apphost:prelaunch-fullstack-debug"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:start:swagger",
+      "dependsOn": [
+        "apphost:sync-local-dev-config",
+        "apphost:kill-edge-debug-profile",
+        "apphost:edge:background",
+        "apphost:open-frontend",
+        "apphost:open-swagger"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:start:swagger:headless",
+      "dependsOn": [
+        "apphost:sync-local-dev-config",
+        "apphost:kill-edge-debug-profile",
+        "apphost:edge:background",
+        "apphost:open-swagger"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:frontend-only",
+      "dependsOn": [
+        "apphost:sync-local-dev-config",
+        "apphost:kill-edge-debug-profile",
+        "apphost:kill-frontend-port",
+        "shared:build",
+        "apphost:frontend",
+        "apphost:wait-frontend",
+        "apphost:open-frontend"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:frontend-only:headless",
+      "dependsOn": [
+        "apphost:sync-local-dev-config",
+        "apphost:kill-edge-debug-profile",
+        "apphost:kill-frontend-port",
+        "shared:build",
+        "apphost:frontend",
+        "apphost:wait-frontend"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "apphost:frontend-only:swagger",
+      "dependsOn": [
+        "apphost:frontend-only",
+        "apphost:wait-backend",
+        "apphost:open-swagger"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "workspace:reset-deps",
+      "type": "shell",
+      "command": "$paths = @('node_modules','backend/node_modules','frontend/node_modules','shared/node_modules'); foreach ($path in $paths) { if (Test-Path $path) { Remove-Item -LiteralPath $path -Recurse -Force -ErrorAction SilentlyContinue } }; foreach ($path in $paths) { if (Test-Path $path) { cmd /c \"rd /s /q `\"$path`\"\" } }",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "maintenance",
+        "echo": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "workspace:install-deps",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/install-local-node-modules.ps1'",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "maintenance",
+        "echo": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "workspace:doctor-typescript",
+      "type": "shell",
+      "command": ". '${workspaceFolder}/.vscode/scripts/get-local-dependency-layout.ps1'; $layout = Resolve-LocalDependencyLayout; & '${workspaceFolder}/.vscode/scripts/invoke-workspace-node.ps1' './scripts/assert-local-dev-env.cjs'; Write-Host ('external tsc.cmd exists: ' + (Test-Path (Join-Path $layout.RootBin 'tsc.cmd'))); Write-Host ('external typescript bin exists: ' + (Test-Path (Join-Path $layout.RootNodeModules 'typescript/bin/tsc'))); & '${workspaceFolder}/.vscode/scripts/invoke-workspace-node.ps1' node_modules/typescript/bin/tsc --version",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "maintenance",
+        "echo": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "workspace:prepare-local-deps",
+      "type": "shell",
+      "command": "& '${workspaceFolder}/.vscode/scripts/prepare-local-deps.ps1'",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "powershell.exe",
+          "args": [
+            "-NoProfile", "-Command"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "maintenance",
+        "echo": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}

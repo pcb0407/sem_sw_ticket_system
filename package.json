@@ -1,0 +1,57 @@
+﻿{
+  "name": "sem-sw-ticket-system",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SEM SW Ticket System - starter application template built on the SEM SW common web platform.",
+  "workspaces": [
+    "shared",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "workspace:refresh": "node scripts/invoke-workspace-node.cjs scripts/ensure-platform-root.cjs && node scripts/invoke-workspace-node.cjs scripts/assert-local-dev-env.cjs",
+    "deps:install": "node scripts/invoke-workspace-node.cjs --npm install --workspaces --include-workspace-root --no-audit --no-fund",
+    "deps:ci": "node scripts/invoke-workspace-node.cjs --npm ci --ignore-scripts --workspaces --include-workspace-root --no-audit --no-fund && node scripts/invoke-workspace-node.cjs --npm run workspace:refresh && node scripts/invoke-workspace-node.cjs --npm run postinstall",
+    "preinstall": "node scripts/invoke-workspace-node.cjs scripts/ensure-platform-root.cjs && node scripts/invoke-workspace-node.cjs scripts/assert-local-dev-env.cjs",
+    "postinstall": "node scripts/invoke-workspace-node.cjs scripts/install-platform.cjs && node scripts/invoke-workspace-node.cjs scripts/verify-platform-sync.cjs",
+    "platform:link": "node scripts/invoke-workspace-node.cjs scripts/ensure-platform-root.cjs",
+    "platform:adopt": "node scripts/invoke-workspace-node.cjs scripts/ensure-platform-root.cjs --adopt",
+    "platform:status": "node scripts/invoke-workspace-node.cjs scripts/ensure-platform-root.cjs --status",
+    "build:shared": "node scripts/invoke-workspace-node.cjs --npm run build --workspace shared",
+    "build:frontend": "cd frontend && node ../scripts/invoke-workspace-node.cjs ../node_modules/typescript/lib/tsc.js --build --pretty false && node ../scripts/invoke-workspace-node.cjs ./node_modules/vite/bin/vite.js build --emptyOutDir=false",
+    "dev:backend": "node scripts/invoke-workspace-node.cjs --npm run start:dev --workspace backend",
+    "dev:frontend": "node scripts/invoke-workspace-node.cjs --npm run dev --workspace frontend",
+    "dev": "node scripts/invoke-workspace-node.cjs --npm run workspace:refresh && node scripts/invoke-workspace-node.cjs --npm run postinstall && node scripts/invoke-workspace-node.cjs --npm run build:shared && node scripts/invoke-workspace-node.cjs ./node_modules/concurrently/dist/bin/concurrently.js -n backend,frontend -c blue,green \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "test": "node scripts/invoke-workspace-node.cjs --npm run test --workspaces --if-present",
+    "test:debug-cleanup": "node scripts/check-debug-auto-cleanup.cjs",
+    "test:debug-cleanup:e2e": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-debug-browser-cleanup.ps1",
+    "verify": "node scripts/invoke-workspace-node.cjs --npm run test && node scripts/invoke-workspace-node.cjs --npm run build",
+    "verify:release": "node scripts/invoke-workspace-node.cjs --npm run verify && node scripts/invoke-workspace-node.cjs --npm run budget:frontend",
+    "smoke": "node scripts/invoke-workspace-node.cjs scripts/smoke-template.cjs",
+    "smoke:deployment": "node scripts/invoke-workspace-node.cjs scripts/smoke-deployment.cjs",
+    "budget:frontend": "node scripts/invoke-workspace-node.cjs scripts/check-frontend-budget.cjs",
+    "check:production-env": "node scripts/invoke-workspace-node.cjs scripts/check-production-env.cjs",
+    "check:environment-matrix": "node scripts/invoke-workspace-node.cjs scripts/check-environment-matrix.cjs",
+    "check:product-profile": "node scripts/invoke-workspace-node.cjs scripts/check-product-profile.cjs",
+    "check:productization": "node scripts/invoke-workspace-node.cjs scripts/check-productization.cjs",
+    "check:release-evidence": "node scripts/invoke-workspace-node.cjs scripts/check-release-evidence.cjs",
+    "check:test-evidence": "node scripts/invoke-workspace-node.cjs scripts/check-test-evidence.cjs",
+    "check:launch-readiness": "node scripts/invoke-workspace-node.cjs scripts/check-launch-readiness.cjs",
+    "build": "node scripts/invoke-workspace-node.cjs --npm run workspace:refresh && node scripts/invoke-workspace-node.cjs --npm run postinstall && node scripts/invoke-workspace-node.cjs --npm run build:shared && node scripts/invoke-workspace-node.cjs --npm run build --workspace backend && node scripts/invoke-workspace-node.cjs --npm run build:frontend",
+    "submodule:update": "git submodule update --init --recursive --remote",
+    "prepare:https": "node scripts/invoke-workspace-node.cjs scripts/ensure-dev-https-cert.cjs",
+    "doctor:apphost-node-architecture": "node common-platform/scripts/verify-apphost-node-architecture.cjs ."
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "selfsigned": "^2.4.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.7"
+  },
+  "engines": {
+    "node": ">=20.19.0 <21"
+  },
+  "overrides": {
+    "express": "4.18.2"
+  }
+}

@@ -1,0 +1,268 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "App Debug (Desktop Edge)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "${config:pump.apphost.frontendUrl}",
+      "webRoot": "${workspaceFolder}/frontend/src",
+      "preLaunchTask": "apphost:start:swagger:headless",
+      "postDebugTask": "apphost:cleanup-apphost:docker",
+      "runtimeArgs": [
+        "--user-data-dir=${workspaceFolder}/.vscode/.edge-debug-profile",
+        "--window-size=${config:pump.apphost.browserDesktopWindowSize}",
+        "--force-device-scale-factor=${config:pump.apphost.browserDesktopDeviceScaleFactor}",
+        "--high-dpi-support=${config:pump.apphost.browserHighDpiSupport}",
+        "--disable-features=msEdgeStartupBoost"
+      ],
+      "presentation": {
+        "hidden": false,
+        "group": "apphost",
+        "order": 1
+      }
+    },
+    {
+      "name": "Backend Debug (API)",
+      "type": "node",
+      "request": "attach",
+      "address": "127.0.0.1",
+      "port": "${config:pump.apphost.backendDebugPort}",
+      "preLaunchTask": "apphost:prelaunch-backend-debug",
+      "postDebugTask": "apphost:cleanup-apphost:docker",
+      "skipFiles": ["<node_internals>/**"],
+      "restart": true,
+      "timeout": 120000,
+      "presentation": {
+        "hidden": false,
+        "group": "apphost",
+        "order": 2
+      }
+    },
+    {
+      "name": "Frontend Only (Desktop Edge)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "${config:pump.apphost.frontendUrl}",
+      "webRoot": "${workspaceFolder}/frontend/src",
+      "preLaunchTask": "apphost:frontend-only:headless",
+      "postDebugTask": "apphost:cleanup-apphost:docker",
+      "runtimeArgs": [
+        "--user-data-dir=${workspaceFolder}/.vscode/.edge-desktop-profile",
+        "--window-size=${config:pump.apphost.browserDesktopWindowSize}",
+        "--force-device-scale-factor=${config:pump.apphost.browserDesktopDeviceScaleFactor}",
+        "--high-dpi-support=${config:pump.apphost.browserHighDpiSupport}",
+        "--disable-features=msEdgeStartupBoost"
+      ],
+      "presentation": {
+        "hidden": false,
+        "group": "apphost",
+        "order": 3
+      }
+    },
+    {
+      "name": "Frontend Only (Mobile Edge)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "${config:pump.apphost.frontendUrl}",
+      "webRoot": "${workspaceFolder}/frontend/src",
+      "preLaunchTask": "apphost:frontend-only:headless",
+      "postDebugTask": "apphost:cleanup-apphost:docker",
+      "runtimeArgs": [
+        "--user-data-dir=${workspaceFolder}/.vscode/.edge-frontend-profile",
+        "--window-size=${config:pump.apphost.browserMobileWindowSize}",
+        "--force-device-scale-factor=${config:pump.apphost.browserMobileDeviceScaleFactor}",
+        "--high-dpi-support=${config:pump.apphost.browserHighDpiSupport}",
+        "--user-agent=Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
+        "--disable-features=msEdgeStartupBoost"
+      ],
+      "presentation": {
+        "hidden": false,
+        "group": "apphost",
+        "order": 4
+      }
+    },
+    {
+      "name": "Frontend Only (Tablet Edge)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "${config:pump.apphost.frontendUrl}",
+      "webRoot": "${workspaceFolder}/frontend/src",
+      "preLaunchTask": "apphost:frontend-only:headless",
+      "postDebugTask": "apphost:cleanup-apphost:docker",
+      "runtimeArgs": [
+        "--user-data-dir=${workspaceFolder}/.vscode/.edge-tablet-profile",
+        "--window-size=${config:pump.apphost.browserTabletWindowSize}",
+        "--force-device-scale-factor=${config:pump.apphost.browserTabletDeviceScaleFactor}",
+        "--high-dpi-support=${config:pump.apphost.browserHighDpiSupport}",
+        "--user-agent=Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
+        "--disable-features=msEdgeStartupBoost"
+      ],
+      "presentation": {
+        "hidden": false,
+        "group": "apphost",
+        "order": 5
+      }
+    },
+    {
+      "name": "Backend Attach (Full Stack Helper)",
+      "type": "node",
+      "request": "attach",
+      "address": "127.0.0.1",
+      "port": "${config:pump.apphost.backendDebugPort}",
+      "preLaunchTask": "apphost:ensure-fullstack-debug-ready",
+      "postDebugTask": "apphost:cleanup-apphost:docker",
+      "skipFiles": ["<node_internals>/**"],
+      "restart": true,
+      "timeout": 120000,
+      "presentation": {
+        "hidden": true,
+        "group": "apphost",
+        "order": 6
+      }
+    },
+    {
+      "name": "Full Stack Frontend (Desktop Edge Helper)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "${config:pump.apphost.frontendUrl}",
+      "webRoot": "${workspaceFolder}/frontend/src",
+      "preLaunchTask": "apphost:wait-fullstack-debug-ready",
+      "postDebugTask": "apphost:cleanup-apphost:docker",
+      "runtimeArgs": [
+        "--user-data-dir=${workspaceFolder}/.vscode/.edge-desktop-profile",
+        "--window-size=${config:pump.apphost.browserDesktopWindowSize}",
+        "--force-device-scale-factor=${config:pump.apphost.browserDesktopDeviceScaleFactor}",
+        "--high-dpi-support=${config:pump.apphost.browserHighDpiSupport}",
+        "--disable-features=msEdgeStartupBoost"
+      ],
+      "presentation": {
+        "hidden": true,
+        "group": "apphost",
+        "order": 7
+      }
+    },
+    {
+      "name": "Full Stack Frontend (Mobile Edge Helper)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "${config:pump.apphost.frontendUrl}",
+      "webRoot": "${workspaceFolder}/frontend/src",
+      "preLaunchTask": "apphost:wait-fullstack-debug-ready",
+      "postDebugTask": "apphost:cleanup-apphost:docker",
+      "runtimeArgs": [
+        "--user-data-dir=${workspaceFolder}/.vscode/.edge-frontend-profile",
+        "--window-size=${config:pump.apphost.browserMobileWindowSize}",
+        "--force-device-scale-factor=${config:pump.apphost.browserMobileDeviceScaleFactor}",
+        "--high-dpi-support=${config:pump.apphost.browserHighDpiSupport}",
+        "--user-agent=Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
+        "--disable-features=msEdgeStartupBoost"
+      ],
+      "presentation": {
+        "hidden": true,
+        "group": "apphost",
+        "order": 8
+      }
+    },
+    {
+      "name": "Full Stack Frontend (Tablet Edge Helper)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "${config:pump.apphost.frontendUrl}",
+      "webRoot": "${workspaceFolder}/frontend/src",
+      "preLaunchTask": "apphost:wait-fullstack-debug-ready",
+      "postDebugTask": "apphost:cleanup-apphost:docker",
+      "runtimeArgs": [
+        "--user-data-dir=${workspaceFolder}/.vscode/.edge-tablet-profile",
+        "--window-size=${config:pump.apphost.browserTabletWindowSize}",
+        "--force-device-scale-factor=${config:pump.apphost.browserTabletDeviceScaleFactor}",
+        "--high-dpi-support=${config:pump.apphost.browserHighDpiSupport}",
+        "--user-agent=Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
+        "--disable-features=msEdgeStartupBoost"
+      ],
+      "presentation": {
+        "hidden": true,
+        "group": "apphost",
+        "order": 9
+      }
+    },
+    {
+      "name": "Full Stack Swagger (Edge Helper)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "${config:pump.apphost.swaggerUrl}",
+      "preLaunchTask": "apphost:wait-fullstack-debug-ready",
+      "postDebugTask": "apphost:cleanup-apphost:docker",
+      "runtimeArgs": [
+        "--user-data-dir=${workspaceFolder}/.vscode/.edge-swagger-profile",
+        "--window-size=${config:pump.apphost.browserDesktopWindowSize}",
+        "--force-device-scale-factor=${config:pump.apphost.browserDesktopDeviceScaleFactor}",
+        "--high-dpi-support=${config:pump.apphost.browserHighDpiSupport}",
+        "--disable-features=msEdgeStartupBoost"
+      ],
+      "presentation": {
+        "hidden": true,
+        "group": "apphost",
+        "order": 10
+      }
+    },
+    {
+      "name": "Full Stack Debug (All)",
+      "type": "node",
+      "request": "attach",
+      "address": "127.0.0.1",
+      "port": "${config:pump.apphost.backendDebugPort}",
+      "preLaunchTask": "apphost:fullstack-debug:open-ready:all",
+      "postDebugTask": "apphost:cleanup-apphost:docker",
+      "skipFiles": ["<node_internals>/**"],
+      "restart": true,
+      "timeout": 120000,
+      "presentation": {
+        "hidden": false,
+        "group": "apphost",
+        "order": 16
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack Debug (Desktop)",
+      "configurations": [
+        "Backend Attach (Full Stack Helper)",
+        "Full Stack Frontend (Desktop Edge Helper)",
+        "Full Stack Swagger (Edge Helper)"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "group": "apphost",
+        "order": 13
+      }
+    },
+    {
+      "name": "Full Stack Debug (Mobile)",
+      "configurations": [
+        "Backend Attach (Full Stack Helper)",
+        "Full Stack Frontend (Mobile Edge Helper)",
+        "Full Stack Swagger (Edge Helper)"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "group": "apphost",
+        "order": 14
+      }
+    },
+    {
+      "name": "Full Stack Debug (Tablet)",
+      "configurations": [
+        "Backend Attach (Full Stack Helper)",
+        "Full Stack Frontend (Tablet Edge Helper)",
+        "Full Stack Swagger (Edge Helper)"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "group": "apphost",
+        "order": 15
+      }
+    }
+  ]
+}

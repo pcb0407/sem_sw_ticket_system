@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "target": "ES2020",
+    "outDir": "dist/cjs",
+    "tsBuildInfoFile": "../output/shared/tsconfig.cjs.tsbuildinfo",
+    "rootDir": "src",
+    "incremental": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "types": []
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/*.test.ts", "node_modules", "dist"]
+}
