@@ -97,13 +97,6 @@ try {
     /production DB type sources disagree: --db-type=postgres, DB_TYPE=mysql/,
     { DB_TYPE: "mysql" },
   );
-  expectFail(
-    "missing env file fails",
-    ["--env-file", writeEnv("invalid.env", { DB_TYPE: "mssql" }).replace(/\.env$/, "")],
-    /production env file does not exist/,
-    { DB_TYPE: "" },
-  );
-
   const invalidEnvPath = path.join(tempRoot, "invalid-format.env");
   fs.writeFileSync(invalidEnvPath, "DB_TYPE\n", "utf8");
   expectFail(

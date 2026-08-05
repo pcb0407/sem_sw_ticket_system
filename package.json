@@ -33,6 +33,7 @@
     "smoke:deployment": "node scripts/invoke-workspace-node.cjs scripts/smoke-deployment.cjs",
     "budget:frontend": "node scripts/invoke-workspace-node.cjs scripts/check-frontend-budget.cjs",
     "check:production-env": "node scripts/invoke-workspace-node.cjs scripts/check-production-env.cjs",
+    "verify:production-env": "node scripts/invoke-workspace-node.cjs scripts/check-production-env.cjs",
     "verify:production-migrations": "node scripts/invoke-workspace-node.cjs scripts/verify-production-migrations.cjs",
     "check:environment-matrix": "node scripts/invoke-workspace-node.cjs scripts/check-environment-matrix.cjs",
     "check:product-profile": "node scripts/invoke-workspace-node.cjs scripts/check-product-profile.cjs",
