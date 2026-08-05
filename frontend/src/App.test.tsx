@@ -13,4 +13,12 @@ describe("App navigation", () => {
     expect(source).not.toContain(removedLabel);
     expect(source).not.toContain(removedPath);
   });
+
+  it("contains ticket request navigation entries", () => {
+    const source = readFileSync(path.join(currentDir, "App.tsx"), "utf-8");
+
+    expect(source).toContain("Ticket Request");
+    expect(source).toContain("Pump Test Rig Request");
+    expect(source).toContain("Controller Software Request");
+  });
 });

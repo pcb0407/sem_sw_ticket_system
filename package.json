@@ -18,7 +18,7 @@
     "platform:adopt": "node scripts/invoke-workspace-node.cjs scripts/ensure-platform-root.cjs --adopt",
     "platform:status": "node scripts/invoke-workspace-node.cjs scripts/ensure-platform-root.cjs --status",
     "build:shared": "node scripts/invoke-workspace-node.cjs --npm run build --workspace shared",
-    "build:frontend": "cd frontend && node ../scripts/invoke-workspace-node.cjs ../node_modules/typescript/lib/tsc.js --build --pretty false && node ../scripts/invoke-workspace-node.cjs ./node_modules/vite/bin/vite.js build --emptyOutDir=false",
+    "build:frontend": "cd frontend && node ../scripts/invoke-workspace-node.cjs node_modules/typescript/lib/tsc.js --build --pretty false && node ../scripts/invoke-workspace-node.cjs node_modules/vite/bin/vite.js build --emptyOutDir=false",
     "dev:backend": "node scripts/invoke-workspace-node.cjs --npm run start:dev --workspace backend",
     "dev:frontend": "node scripts/invoke-workspace-node.cjs --npm run dev --workspace frontend",
     "dev": "node scripts/invoke-workspace-node.cjs --npm run workspace:refresh && node scripts/invoke-workspace-node.cjs --npm run postinstall && node scripts/invoke-workspace-node.cjs --npm run build:shared && node scripts/invoke-workspace-node.cjs ./node_modules/concurrently/dist/bin/concurrently.js -n backend,frontend -c blue,green \"npm:dev:backend\" \"npm:dev:frontend\"",

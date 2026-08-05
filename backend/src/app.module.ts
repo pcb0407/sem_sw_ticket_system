@@ -7,6 +7,7 @@ import {
   formatLoadedBackendEnvFiles,
   resolvePlatformSeedOptions,
 } from "@sem/platform-backend";
+import { TicketRequestModule } from "./ticket-request/ticket-request.module";
 
 const ticketSystemBackendRoot = path.resolve(__dirname, "..");
 
@@ -26,7 +27,7 @@ const platformBackend = createPlatformBackendModuleSetup({
 });
 
 @Module({
-  imports: platformBackend.imports,
+  imports: [...platformBackend.imports, TicketRequestModule],
 })
 export class AppModule implements OnModuleInit {
   private readonly logger = new Logger(AppModule.name);

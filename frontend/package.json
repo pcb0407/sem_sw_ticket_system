@@ -6,8 +6,8 @@
   "scripts": {
     "prebuild": "node ../scripts/invoke-workspace-node.cjs ../scripts/ensure-local-build-output.cjs frontend",
     "dev": "node ../scripts/invoke-workspace-node.cjs ./node_modules/vite/bin/vite.js",
-    "build": "node ../scripts/invoke-workspace-node.cjs ../node_modules/typescript/lib/tsc.js --build --pretty false && node ../scripts/invoke-workspace-node.cjs ./node_modules/vite/bin/vite.js build --emptyOutDir=false",
-    "test": "node ../scripts/invoke-workspace-node.cjs ../node_modules/vitest/vitest.mjs run --config vitest.config.ts"
+    "build": "node ../scripts/invoke-workspace-node.cjs node_modules/typescript/lib/tsc.js --build --pretty false && node ../scripts/invoke-workspace-node.cjs node_modules/vite/bin/vite.js build --emptyOutDir=false",
+    "test": "node ../scripts/invoke-workspace-node.cjs node_modules/vitest/vitest.mjs run --config vitest.config.ts"
   },
   "dependencies": {
     "@ticket-system/shared": "file:../shared",

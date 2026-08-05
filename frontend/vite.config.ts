@@ -139,7 +139,7 @@ export default defineConfig(({ mode }) => {
         { find: "@sem/platform-frontend/services", replacement: path.resolve(workspaceRoot, "common-platform/packages/platform-frontend/src/services/index.ts") },
         { find: "@ticket-system/shared", replacement: path.resolve(workspaceRoot, "shared/src/index.ts") },
         { find: /^@sem\/platform-frontend$/, replacement: path.resolve(workspaceRoot, "common-platform/packages/platform-frontend/src/index.ts") },
-        { find: "@sem/platform-shared", replacement: path.resolve(workspaceRoot, "common-platform/packages/platform-shared/src/index.ts") },
+        { find: "@sem/platform-shared", replacement: path.resolve(workspaceRoot, "common-platform/packages/platform-shared/dist/esm/index.js") },
         { find: /^axios$/, replacement: path.join(workspaceNodeModules, "axios") },
         { find: /^clsx$/, replacement: path.join(workspaceNodeModules, "clsx") },
         { find: /^html2canvas$/, replacement: path.join(workspaceNodeModules, "html2canvas") },

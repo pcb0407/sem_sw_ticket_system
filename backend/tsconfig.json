@@ -2,8 +2,9 @@
   "extends": "../common-platform/scripts/tsconfig.backend-app.json",
   "compilerOptions": {
     "ignoreDeprecations": "5.0",
+    "types": ["node"],
     "paths": {
-      "@ticket-system/shared": ["../shared/dist/cjs/index.d.ts"]
+      "@ticket-system/shared": ["../shared/dist/cjs/index.d.ts", "../shared/src/index.ts"]
     },
     "outDir": "dist",
     "rootDir": "src",

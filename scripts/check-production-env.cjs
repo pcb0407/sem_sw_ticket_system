@@ -20,6 +20,8 @@ const REQUIRED_EXACT = {
 };
 
 const FORBIDDEN_PLACEHOLDERS = [/example/i, /contoso/i, /localhost/i, /<.*>/, /change[-_ ]?me/i, /template/i];
+const LOCAL_DB_TYPES = new Set(["sqlite", "better-sqlite3", "sqljs"]);
+const ROLE_PREFIXES = ["AUDIT", "USER", "TRACE", "SYSTEM", "SERVICE"];
 
 function read(name) {
   return String(process.env[name] || "").trim();
@@ -81,6 +83,24 @@ if (isTruthy(read("SWAGGER_ENABLED"))) {
 
 if (read("DB_TYPE").toLowerCase() === "sqlite") {
   failures.push("DB_TYPE must not be sqlite for shared or production environments.");
+}
+
+const primaryDbType = read("DB_TYPE").toLowerCase();
+if (LOCAL_DB_TYPES.has(primaryDbType)) {
+  failures.push("DB_TYPE must use a managed server engine in production (mssql/postgres/mysql/mariadb).");
+}
+
+for (const rolePrefix of ROLE_PREFIXES) {
+  const key = `${rolePrefix}_DB_TYPE`;
+  const value = read(key).toLowerCase();
+  if (!value) {
+    failures.push(`${key} is required in production to prevent implicit local-db fallback.`);
+    continue;
+  }
+
+  if (LOCAL_DB_TYPES.has(value)) {
+    failures.push(`${key} must not use local DB engines in production.`);
+  }
 }
 
 if (failures.length) {
