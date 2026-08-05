@@ -7,7 +7,7 @@
 // each package hasn't changed since the last successful build.
 
 const { execFileSync } = require("node:child_process");
-const { cpSync, existsSync, lstatSync, readFileSync, realpathSync, rmdirSync, rmSync, symlinkSync, writeFileSync, mkdirSync, readdirSync, statSync } = require("node:fs");
+const { cpSync, existsSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync, mkdirSync, readdirSync, statSync, renameSync } = require("node:fs");
 const { join, relative, resolve } = require("node:path");
 const { createHash } = require("node:crypto");
 const { ensurePlatformRoot } = require("./ensure-platform-root.cjs");
@@ -67,6 +67,18 @@ const stampDir = join(externalOutputBaseRoot, layoutName, ".bundle");
 const nodeHome = resolve(process.execPath, "..");
 const npmCli = join(nodeHome, "node_modules", "npm", "bin", "npm-cli.js");
 const skipSqliteRebuild = process.env.TICKET_SYSTEM_FORCE_SQLITE_REBUILD !== "1";
+
+function hasRequiredPlatformDependencies() {
+  const requiredPaths = [
+    join(platformInstallRoot, "package.json"),
+    join(platformInstallRoot, "package-lock.json"),
+    join(platformInstallRoot, "node_modules", "typescript", "bin", "tsc"),
+    join(platformInstallRoot, "node_modules", "typescript", "lib", "lib.es2022.d.ts"),
+    join(platformInstallRoot, "node_modules", "@types", "node", "package.json"),
+  ];
+
+  return requiredPaths.every((filePath) => existsSync(filePath));
+}
 
 function canLoadSqlite3(cwd) {
   try {
@@ -147,6 +159,17 @@ function sleep(milliseconds) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
 }
 
+function getStalePath(targetPath) {
+  const stamp = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14);
+  let candidate = `${targetPath}.stale-${stamp}`;
+  let suffix = 0;
+  while (existsSync(candidate)) {
+    suffix += 1;
+    candidate = `${targetPath}.stale-${stamp}-${suffix}`;
+  }
+  return candidate;
+}
+
 function removePathWithRetry(targetPath) {
   const deadline = Date.now() + 15_000;
 
@@ -155,9 +178,25 @@ function removePathWithRetry(targetPath) {
       rmSync(targetPath, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
       return;
     } catch (error) {
-      if (!lockedPathErrorCodes.has(error?.code) || Date.now() >= deadline) {
+      if (!lockedPathErrorCodes.has(error?.code)) {
         throw error;
       }
+
+      if (Date.now() >= deadline) {
+        if (existsSync(targetPath)) {
+          const stalePath = getStalePath(targetPath);
+          try {
+            renameSync(targetPath, stalePath);
+            console.warn(`[bundle postinstall] Moved locked path aside: ${targetPath} -> ${stalePath}`);
+            return;
+          } catch (renameError) {
+            throw renameError;
+          }
+        }
+
+        throw error;
+      }
+
       sleep(100);
     }
   }
@@ -176,6 +215,32 @@ function copyPathWithRetry(sourcePath, targetPath, options) {
       }
       sleep(100);
     }
+  }
+}
+
+function syncBuiltDistArtifacts({ packageName, buildRoot, outputArea }) {
+  const sourceDist = join(externalOutputBaseRoot, layoutName, "platform", outputArea, "dist");
+  if (!existsSync(sourceDist)) {
+    throw new Error(`[bundle postinstall] Missing built dist output: ${sourceDist}`);
+  }
+
+  const packageShortName = packageName.split("/").at(-1);
+  const targets = [
+    join(buildRoot, "dist"),
+    join(externalInstallRoot, "node_modules", "@sem", packageShortName, "dist"),
+  ];
+
+  for (const targetDist of targets) {
+    if (existsSync(targetDist)) {
+      removePathWithRetry(targetDist);
+    }
+
+    mkdirSync(resolve(targetDist, ".."), { recursive: true });
+    copyPathWithRetry(sourceDist, targetDist, {
+      recursive: true,
+      force: true,
+      dereference: true,
+    });
   }
 }
 
@@ -244,9 +309,16 @@ function ensurePlatformInstallRoot() {
   }
 
   if (existsSync(platformInstallRoot)) {
-    const stats = lstatSync(platformInstallRoot);
-    if (stats.isSymbolicLink() || isSameRealPath(platformInstallRoot, sourceRoot)) {
-      rmdirSync(platformInstallRoot);
+    try {
+      removePathWithRetry(platformInstallRoot);
+    } catch (error) {
+      if (!lockedPathErrorCodes.has(error?.code)) {
+        throw error;
+      }
+
+      console.warn(
+        `[bundle postinstall] Platform install root is locked (${error.code}); continuing with in-place sync: ${platformInstallRoot}`,
+      );
     }
   }
 
@@ -302,14 +374,24 @@ function ensureWorkspaceInstalled(installOpts) {
   const cachedInstallHash = existsSync(installStampPath) ? readFileSync(installStampPath, "utf8").trim() : null;
   const nodeModulesRoot = join(platformInstallRoot, "node_modules");
   const nodeModulesReady = existsSync(nodeModulesRoot);
+  const dependenciesReady = nodeModulesReady && hasRequiredPlatformDependencies();
 
-  if (nodeModulesReady && (!cachedInstallHash || cachedInstallHash === installInputHash)) {
+  if (dependenciesReady && (!cachedInstallHash || cachedInstallHash === installInputHash)) {
     mkdirSync(stampDir, { recursive: true });
     writeFileSync(installStampPath, installInputHash, "utf8");
     return false;
   }
 
+  if (nodeModulesReady && !dependenciesReady) {
+    removePathWithRetry(nodeModulesRoot);
+  }
+
   runNpm(["install", "--ignore-scripts", "--workspaces", "--include-workspace-root", "--no-audit", "--no-fund", "--loglevel=warn"], installOpts);
+
+  if (!hasRequiredPlatformDependencies()) {
+    throw new Error("[bundle postinstall] common-platform dependency install is incomplete after npm install.");
+  }
+
   mkdirSync(stampDir, { recursive: true });
   writeFileSync(installStampPath, installInputHash, "utf8");
   return true;
@@ -334,9 +416,9 @@ function ensurePackageBuilt({ name, sourceRoot, buildRoot, distChecks, stampFile
     stdio: "inherit",
     env: commandEnv,
   });
-  ensureAppNodeModuleLink(name, buildRoot);
 
   if (distExists && cachedHash === currentHash && backendSqliteReady) {
+    ensureAppNodeModuleLink(name, buildRoot);
     console.log(`[bundle postinstall] ${name} already built (hash match).`);
     return;
   }
@@ -350,6 +432,8 @@ function ensurePackageBuilt({ name, sourceRoot, buildRoot, distChecks, stampFile
     runNpm(["rebuild", "sqlite3", "--no-audit", "--no-fund", "--loglevel=warn"], installOpts);
   }
   runPlatformPackageBuild({ name, buildRoot }, buildOpts);
+  syncBuiltDistArtifacts({ packageName: name, buildRoot, outputArea });
+  ensureAppNodeModuleLink(name, buildRoot);
 
   mkdirSync(stampDir, { recursive: true });
   writeFileSync(stampPath, hashSourceTree(sourceRoot), "utf8");

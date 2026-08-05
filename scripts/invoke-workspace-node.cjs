@@ -37,6 +37,7 @@ if (result.error) {
 process.exit(result.status ?? 0);
 
 function ensureWorkspaceNodeModulesJunctions() {
+  const commonPlatformNodeModules = path.join(installRoot, "common-platform", "node_modules");
   const junctions = [
     [path.join(workspaceRoot, "node_modules"), path.join(installRoot, "node_modules")],
     [path.join(workspaceRoot, "backend", "node_modules"), path.join(installRoot, "backend", "node_modules")],
@@ -45,11 +46,31 @@ function ensureWorkspaceNodeModulesJunctions() {
   ];
 
   for (const [linkPath, targetPath] of junctions) {
-    if (!fs.existsSync(targetPath)) {
+    if (fs.existsSync(targetPath)) {
+      ensureJunction(linkPath, targetPath);
       continue;
     }
 
-    ensureJunction(linkPath, targetPath);
+    if (fs.existsSync(commonPlatformNodeModules)) {
+      ensureJunction(linkPath, commonPlatformNodeModules);
+      continue;
+    }
+
+    // Remove stale junctions so npm can recreate physical node_modules folders.
+    removeLinkIfSymlink(linkPath);
+  }
+}
+
+function removeLinkIfSymlink(linkPath) {
+  try {
+    const stats = fs.lstatSync(linkPath);
+    if (stats.isSymbolicLink()) {
+      fs.rmSync(linkPath, { recursive: true, force: true });
+    }
+  } catch (error) {
+    if (error?.code !== "ENOENT") {
+      throw error;
+    }
   }
 }
 
@@ -374,6 +395,7 @@ function resolveScriptArgument(arg) {
       path.join(process.cwd(), "node_modules", moduleRelativePath),
       path.join(workspaceRoot, "node_modules", moduleRelativePath),
       path.join(installRoot, path.basename(process.cwd()), "node_modules", moduleRelativePath),
+      path.join(installRoot, "common-platform", "node_modules", moduleRelativePath),
       path.join(installRoot, "node_modules", moduleRelativePath),
     ]);
   }
