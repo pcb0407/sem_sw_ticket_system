@@ -1,10 +1,13 @@
 import { Logger, Module, OnModuleInit } from "@nestjs/common";
+import { readFileSync } from "node:fs";
 import * as path from "node:path";
+import { parse as parseDotenv } from "dotenv";
 
 import {
   createPlatformBackendModuleSetup,
   formatBackendEnvPrecedence,
   formatLoadedBackendEnvFiles,
+  resolveBackendEnvFiles,
   resolvePlatformSeedOptions,
 } from "@sem/platform-backend";
 import { TicketRequestAttachmentEntity } from "./ticket-request/entities/ticket-request-attachment.entity";
@@ -13,7 +16,42 @@ import { TicketRequestEntity } from "./ticket-request/entities/ticket-request.en
 import { TicketRequestModule } from "./ticket-request/ticket-request.module";
 
 const ticketSystemBackendRoot = path.resolve(__dirname, "..");
-const ticketSystemMigrationGlob = path.join(__dirname, "database", "migrations", "*.{ts,js}");
+const backendEnvResolution = resolveBackendEnvFiles(ticketSystemBackendRoot);
+
+preloadBackendEnvFiles(backendEnvResolution.existingFiles);
+
+const ticketSystemMigrationGlob = path.join(
+  __dirname,
+  "database",
+  "migrations",
+  getTicketMigrationDbType(),
+  "*.{ts,js}",
+);
+
+function preloadBackendEnvFiles(envFilePaths: string[]): void {
+  for (const filePath of envFilePaths) {
+    const parsed = parseDotenv(readFileSync(filePath));
+    for (const [key, value] of Object.entries(parsed)) {
+      process.env[key] ??= value;
+    }
+  }
+}
+
+function envText(name: string): string {
+  return process.env[name]?.trim() ?? "";
+}
+
+function getTicketMigrationDbType(): string {
+  const dbType = envText("DB_TYPE").toLowerCase();
+  if (dbType === "better-sqlite3" || dbType === "sqljs" || !dbType) {
+    return "sqlite";
+  }
+  if (["sqlite", "mssql", "postgres", "mysql", "mariadb"].includes(dbType)) {
+    return dbType;
+  }
+
+  return "sqlite";
+}
 
 const platformBackend = createPlatformBackendModuleSetup({
   backendRoot: ticketSystemBackendRoot,

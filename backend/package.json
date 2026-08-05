@@ -8,6 +8,10 @@
     "prebuild": "node ../scripts/invoke-workspace-node.cjs ../scripts/ensure-local-build-output.cjs backend",
     "build": "node ../scripts/invoke-workspace-node.cjs node_modules/typescript/lib/tsc.js --project tsconfig.json --pretty false",
     "test": "node ../scripts/invoke-workspace-node.cjs node_modules/vitest/vitest.mjs run --config vitest.config.ts",
+    "typeorm": "node ../scripts/invoke-workspace-node.cjs -r ts-node/register/transpile-only ../node_modules/typeorm/cli.js",
+    "db:migration:generate": "node ../scripts/invoke-workspace-node.cjs -r ts-node/register/transpile-only ../node_modules/typeorm/cli.js migration:generate --dataSource=src/database/data-source.ts",
+    "db:migration:run": "node ../scripts/invoke-workspace-node.cjs -r ts-node/register/transpile-only ../node_modules/typeorm/cli.js migration:run --dataSource=src/database/data-source.ts",
+    "db:migration:revert": "node ../scripts/invoke-workspace-node.cjs -r ts-node/register/transpile-only ../node_modules/typeorm/cli.js migration:revert --dataSource=src/database/data-source.ts",
     "start": "node ../scripts/invoke-workspace-node.cjs dist/main.js",
     "start:dev": "node ../scripts/invoke-workspace-node.cjs --npm run build && node ../scripts/invoke-workspace-node.cjs dist/main.js",
     "start:debug": "node ../scripts/invoke-workspace-node.cjs --npm run build && node ../scripts/invoke-workspace-node.cjs --preserve-symlinks --enable-source-maps --inspect=127.0.0.1:%DEV_BACKEND_DEBUG_PORT% dist/main.js"
