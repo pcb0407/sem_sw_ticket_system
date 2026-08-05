@@ -225,7 +225,7 @@ function DashboardPage() {
       >
         <div className="grid gap-3 md:grid-cols-3">
           <InfoCard label="Starter status" value="READY" labelVariant="title" />
-          <InfoCard label="Master-data API" value="MOCK READY" labelVariant="title" />
+          <InfoCard label="Master-data API" value="DB READY" labelVariant="title" />
           <InfoCard label="Jira integration layer" value="ABSTRACTED" labelVariant="title" />
         </div>
       </PageSection>

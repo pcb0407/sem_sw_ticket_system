@@ -58,40 +58,46 @@ export class MockTicketRequestMasterDataRepository implements TicketRequestMaste
   ): Promise<TicketRequestSubmissionResponse> {
     const ticketId = randomUUID();
 
-    await this.ticketRequestRepository.save(
-      this.ticketRequestRepository.create({
-        id: ticketId,
-        requestType: "pump-test-rig",
-        requester: payload.requester,
-        title: payload.title,
-        priorityId: payload.priorityId,
-        productId: payload.productId,
-        requestSourceId: payload.requestSourceId,
-        categoryId: payload.categoryId,
-        dateFound: payload.dateFound ?? null,
-        rigTypeId: payload.rigTypeId,
-        issueTypeId: payload.issueTypeId,
-        issuedSiteId: payload.issuedSiteId,
-        controllerTypeId: null,
-        mainVersionId: null,
-        mainVersionOther: null,
-        subVersionId: null,
-        subVersionOther: null,
-        additionalCategoryId: payload.additionalCategoryId ?? null,
-        descriptionHtml: payload.descriptionHtml,
-        stepsToReproduceHtml: payload.stepsToReproduceHtml,
-        jiraIssueKey,
-        status: "accepted",
-        message: "Pump Test Rig request is accepted and queued for Jira sync.",
-      }),
-    );
+    const savedTicket = await this.ticketRequestRepository.manager.transaction(async (manager) => {
+      const ticketRepository = manager.getRepository(TicketRequestEntity);
+      const attachmentRepository = manager.getRepository(TicketRequestAttachmentEntity);
 
-    await this.saveAttachments(ticketId, payload.attachments);
+      const ticket = await ticketRepository.save(
+        ticketRepository.create({
+          id: ticketId,
+          requestType: "pump-test-rig",
+          requester: payload.requester,
+          title: payload.title,
+          priorityId: payload.priorityId,
+          productId: payload.productId,
+          requestSourceId: payload.requestSourceId,
+          categoryId: payload.categoryId,
+          dateFound: payload.dateFound ?? null,
+          rigTypeId: payload.rigTypeId,
+          issueTypeId: payload.issueTypeId,
+          issuedSiteId: payload.issuedSiteId,
+          controllerTypeId: null,
+          mainVersionId: null,
+          mainVersionOther: null,
+          subVersionId: null,
+          subVersionOther: null,
+          additionalCategoryId: payload.additionalCategoryId ?? null,
+          descriptionHtml: payload.descriptionHtml,
+          stepsToReproduceHtml: payload.stepsToReproduceHtml,
+          jiraIssueKey,
+          status: "accepted",
+          message: "Pump Test Rig request is accepted and queued for Jira sync.",
+        }),
+      );
+
+      await this.saveAttachments(attachmentRepository, ticketId, payload.attachments);
+      return ticket;
+    });
 
     return {
       requestId: ticketId,
       jiraIssueKey,
-      createdAtUtc: new Date().toISOString(),
+      createdAtUtc: savedTicket.createdAtUtc.toISOString(),
       status: "accepted",
       message: "Pump Test Rig request is accepted and queued for Jira sync.",
     };
@@ -103,40 +109,46 @@ export class MockTicketRequestMasterDataRepository implements TicketRequestMaste
   ): Promise<TicketRequestSubmissionResponse> {
     const ticketId = randomUUID();
 
-    await this.ticketRequestRepository.save(
-      this.ticketRequestRepository.create({
-        id: ticketId,
-        requestType: "controller-software",
-        requester: payload.requester,
-        title: payload.title,
-        priorityId: payload.priorityId,
-        productId: payload.productId,
-        requestSourceId: payload.requestSourceId,
-        categoryId: payload.categoryId,
-        dateFound: payload.dateFound ?? null,
-        rigTypeId: null,
-        issueTypeId: null,
-        issuedSiteId: null,
-        controllerTypeId: payload.controllerTypeId,
-        mainVersionId: payload.mainVersionId,
-        mainVersionOther: payload.mainVersionOther ?? null,
-        subVersionId: payload.subVersionId,
-        subVersionOther: payload.subVersionOther ?? null,
-        additionalCategoryId: payload.additionalCategoryId ?? null,
-        descriptionHtml: payload.descriptionHtml,
-        stepsToReproduceHtml: payload.stepsToReproduceHtml,
-        jiraIssueKey,
-        status: "accepted",
-        message: "Controller Software request is accepted and queued for Jira sync.",
-      }),
-    );
+    const savedTicket = await this.ticketRequestRepository.manager.transaction(async (manager) => {
+      const ticketRepository = manager.getRepository(TicketRequestEntity);
+      const attachmentRepository = manager.getRepository(TicketRequestAttachmentEntity);
 
-    await this.saveAttachments(ticketId, payload.attachments);
+      const ticket = await ticketRepository.save(
+        ticketRepository.create({
+          id: ticketId,
+          requestType: "controller-software",
+          requester: payload.requester,
+          title: payload.title,
+          priorityId: payload.priorityId,
+          productId: payload.productId,
+          requestSourceId: payload.requestSourceId,
+          categoryId: payload.categoryId,
+          dateFound: payload.dateFound ?? null,
+          rigTypeId: null,
+          issueTypeId: null,
+          issuedSiteId: null,
+          controllerTypeId: payload.controllerTypeId,
+          mainVersionId: payload.mainVersionId,
+          mainVersionOther: payload.mainVersionOther ?? null,
+          subVersionId: payload.subVersionId,
+          subVersionOther: payload.subVersionOther ?? null,
+          additionalCategoryId: payload.additionalCategoryId ?? null,
+          descriptionHtml: payload.descriptionHtml,
+          stepsToReproduceHtml: payload.stepsToReproduceHtml,
+          jiraIssueKey,
+          status: "accepted",
+          message: "Controller Software request is accepted and queued for Jira sync.",
+        }),
+      );
+
+      await this.saveAttachments(attachmentRepository, ticketId, payload.attachments);
+      return ticket;
+    });
 
     return {
       requestId: ticketId,
       jiraIssueKey,
-      createdAtUtc: new Date().toISOString(),
+      createdAtUtc: savedTicket.createdAtUtc.toISOString(),
       status: "accepted",
       message: "Controller Software request is accepted and queued for Jira sync.",
     };
@@ -202,6 +214,7 @@ export class MockTicketRequestMasterDataRepository implements TicketRequestMaste
   }
 
   private async saveAttachments(
+    attachmentRepository: Repository<TicketRequestAttachmentEntity>,
     ticketRequestId: string,
     attachments: Array<{ fileName: string; sizeBytes: number; contentType: string }>,
   ): Promise<void> {
@@ -210,7 +223,7 @@ export class MockTicketRequestMasterDataRepository implements TicketRequestMaste
     }
 
     const entities = attachments.map((attachment) =>
-      this.attachmentRepository.create({
+      attachmentRepository.create({
         id: randomUUID(),
         ticketRequestId,
         fileName: attachment.fileName,
@@ -219,6 +232,6 @@ export class MockTicketRequestMasterDataRepository implements TicketRequestMaste
       }),
     );
 
-    await this.attachmentRepository.save(entities);
+    await attachmentRepository.save(entities);
   }
 }

@@ -10,10 +10,13 @@ const require = createRequire(import.meta.url);
 const postcssImport = require("postcss-import");
 const tailwindcss = require("tailwindcss");
 const autoprefixer = require("autoprefixer");
-const { loadLocalDevDefaults } = require("../scripts/local-dev-defaults.cjs") as {
+const { loadLocalDevDefaults, resolveLocalDevConfig } = require("../scripts/local-dev-defaults.cjs") as {
   loadLocalDevDefaults: (workspaceRoot?: string) => {
     frontend: { protocol: string; host: string; bindHost?: string; port: number };
     backend: { protocol: string; host: string; proxyHost?: string; port: number; apiPrefix: string };
+  };
+  resolveLocalDevConfig: (workspaceRoot?: string) => {
+    buildOutputRoot: string;
   };
 };
 
@@ -89,6 +92,7 @@ function writeProxyUnavailable(_err: Error, _req: IncomingMessage, res?: ServerR
 export default defineConfig(({ mode }) => {
   const workspaceRoot = path.resolve(process.env.SEM_APP_WORKSPACE_ROOT || process.env.TICKET_SYSTEM_WORKSPACE_ROOT || path.resolve(__dirname, ".."));
   const localDevDefaults = loadLocalDevDefaults(workspaceRoot);
+  const localDevConfig = resolveLocalDevConfig(workspaceRoot);
   const rootEnv = loadEnv(mode, workspaceRoot, "");
   const frontendHost = readString(rootEnv, "DEV_FRONTEND_HOST", localDevDefaults.frontend.host);
   const frontendBindHost = readString(rootEnv, "DEV_FRONTEND_BIND_HOST", localDevDefaults.frontend.bindHost ?? frontendHost);
@@ -98,6 +102,15 @@ export default defineConfig(({ mode }) => {
   const backendProxyHost = readString(rootEnv, "DEV_BACKEND_PROXY_HOST", localDevDefaults.backend.proxyHost ?? backendHost);
   const backendPort = readPort(rootEnv, "DEV_BACKEND_PORT", localDevDefaults.backend.port);
   const backendApiPrefix = readString(rootEnv, "DEV_BACKEND_API_PREFIX", localDevDefaults.backend.apiPrefix);
+  const layoutName = `${process.platform}-${process.arch}-node${process.versions.node.split(".")[0]}`;
+  const platformSharedCandidates = [
+    path.join(workspaceNodeModules, "@sem/platform-shared/dist/esm/index.js"),
+    path.resolve(workspaceRoot, "common-platform/packages/platform-shared/dist/esm/index.js"),
+    path.resolve(localDevConfig.buildOutputRoot, layoutName, "platform/platform-shared/dist/esm/index.js"),
+    path.resolve(workspaceRoot, "common-platform/packages/platform-shared/src/index.ts"),
+  ];
+  const platformSharedEntry = platformSharedCandidates.find((candidate) => existsSync(candidate))
+    ?? path.resolve(workspaceRoot, "common-platform/packages/platform-shared/src/index.ts");
 
   return {
     envDir: workspaceRoot,
@@ -139,7 +152,7 @@ export default defineConfig(({ mode }) => {
         { find: "@sem/platform-frontend/services", replacement: path.resolve(workspaceRoot, "common-platform/packages/platform-frontend/src/services/index.ts") },
         { find: "@ticket-system/shared", replacement: path.resolve(workspaceRoot, "shared/src/index.ts") },
         { find: /^@sem\/platform-frontend$/, replacement: path.resolve(workspaceRoot, "common-platform/packages/platform-frontend/src/index.ts") },
-        { find: "@sem/platform-shared", replacement: path.resolve(workspaceRoot, "common-platform/packages/platform-shared/dist/esm/index.js") },
+        { find: "@sem/platform-shared", replacement: platformSharedEntry },
         { find: /^axios$/, replacement: path.join(workspaceNodeModules, "axios") },
         { find: /^clsx$/, replacement: path.join(workspaceNodeModules, "clsx") },
         { find: /^html2canvas$/, replacement: path.join(workspaceNodeModules, "html2canvas") },
@@ -172,6 +185,34 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: "dist",
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              if (id.includes("react") || id.includes("react-dom") || id.includes("react-router")) {
+                return "vendor-react";
+              }
+              if (id.includes("@tanstack/react-query") || id.includes("axios")) {
+                return "vendor-data";
+              }
+              if (id.includes("lucide-react") || id.includes("html2canvas")) {
+                return "vendor-ui";
+              }
+              return "vendor-misc";
+            }
+
+            if (id.includes("common-platform/packages/platform-frontend")) {
+              return "platform-frontend";
+            }
+
+            if (id.includes("common-platform/packages/platform-shared") || id.includes("@sem/platform-shared")) {
+              return "platform-shared";
+            }
+
+            return undefined;
+          },
+        },
+      },
     },
   };
 });
