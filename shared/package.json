@@ -17,7 +17,7 @@
     "build:cjs": "node ../scripts/invoke-workspace-node.cjs node_modules/typescript/lib/tsc.js --project tsconfig.cjs.json --pretty false",
     "prebuild:esm": "node ../scripts/invoke-workspace-node.cjs ../scripts/ensure-local-build-output.cjs shared",
     "build:esm": "node ../scripts/invoke-workspace-node.cjs node_modules/typescript/lib/tsc.js --project tsconfig.esm.json --pretty false && node ../scripts/invoke-workspace-node.cjs ./scripts/write-esm-pkg.js",
-    "build": "node ../scripts/invoke-workspace-node.cjs --npm run build:cjs && node ../scripts/invoke-workspace-node.cjs --npm run build:esm",
+    "build": "node ../scripts/invoke-workspace-node.cjs ../scripts/ensure-local-build-output.cjs shared && node ../scripts/invoke-workspace-node.cjs node_modules/typescript/lib/tsc.js --project tsconfig.cjs.json --pretty false && node ../scripts/invoke-workspace-node.cjs ../scripts/ensure-local-build-output.cjs shared && node ../scripts/invoke-workspace-node.cjs node_modules/typescript/lib/tsc.js --project tsconfig.esm.json --pretty false && node ../scripts/invoke-workspace-node.cjs ./scripts/write-esm-pkg.js",
     "test": "node ../scripts/invoke-workspace-node.cjs node_modules/vitest/vitest.mjs run --config vitest.config.ts"
   },
   "devDependencies": {

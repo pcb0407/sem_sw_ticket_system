@@ -14,6 +14,8 @@ const runtime = resolveWorkspaceRuntime();
 const installRoot = resolveInstallRoot(runtime);
 const args = process.argv.slice(2);
 
+ensureWorkspaceNodeModulesJunctions();
+
 if (args.length === 0) {
   console.error("[workspace-node] Missing Node script or arguments.");
   process.exit(1);
@@ -33,6 +35,60 @@ if (result.error) {
 }
 
 process.exit(result.status ?? 0);
+
+function ensureWorkspaceNodeModulesJunctions() {
+  const junctions = [
+    [path.join(workspaceRoot, "node_modules"), path.join(installRoot, "node_modules")],
+    [path.join(workspaceRoot, "backend", "node_modules"), path.join(installRoot, "backend", "node_modules")],
+    [path.join(workspaceRoot, "frontend", "node_modules"), path.join(installRoot, "frontend", "node_modules")],
+    [path.join(workspaceRoot, "shared", "node_modules"), path.join(installRoot, "shared", "node_modules")],
+  ];
+
+  for (const [linkPath, targetPath] of junctions) {
+    if (!fs.existsSync(targetPath)) {
+      continue;
+    }
+
+    ensureJunction(linkPath, targetPath);
+  }
+}
+
+function ensureJunction(linkPath, targetPath) {
+  fs.mkdirSync(path.dirname(linkPath), { recursive: true });
+
+  try {
+    const stats = fs.lstatSync(linkPath);
+    if (stats.isSymbolicLink() || stats.isDirectory()) {
+      try {
+        const current = fs.realpathSync.native(linkPath);
+        const expected = fs.realpathSync.native(targetPath);
+        if (normalizePathForCompare(current) === normalizePathForCompare(expected)) {
+          return;
+        }
+      } catch {
+        // Recreate below if realpath cannot be resolved.
+      }
+    }
+
+    if (stats.isDirectory() && !stats.isSymbolicLink()) {
+      // Keep a physical node_modules directory intact to avoid destructive behavior.
+      return;
+    }
+
+    fs.rmSync(linkPath, { recursive: true, force: true });
+  } catch (error) {
+    if (error?.code !== "ENOENT") {
+      throw error;
+    }
+  }
+
+  fs.symlinkSync(targetPath, linkPath, "junction");
+}
+
+function normalizePathForCompare(value) {
+  const resolved = path.resolve(value || "");
+  return process.platform === "win32" ? resolved.toLowerCase() : resolved;
+}
 
 function resolveInstallRoot(selectedRuntime) {
   const config = require(path.join(workspaceRoot, "scripts", "local-dev-defaults.cjs")).resolveLocalDevConfig(workspaceRoot);
@@ -372,6 +428,8 @@ function buildEnvironment() {
     NO_UPDATE_NOTIFIER: "1",
     NODE_PATH: [...new Set(nodePathEntries)].join(path.delimiter),
     NODE_OPTIONS: mergeNodeOptions(process.env.NODE_OPTIONS),
+    npm_config_scripts_prepend_node_path: "true",
+    npm_node_execpath: runtime.nodeExe,
     Path: [...new Set(pathEntries)].join(path.delimiter),
     PATH: [...new Set(pathEntries)].join(path.delimiter),
     npm_config_update_notifier: "false",

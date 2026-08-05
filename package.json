@@ -27,7 +27,7 @@
     "test:debug-cleanup": "node scripts/check-debug-auto-cleanup.cjs",
     "test:debug-cleanup:e2e": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-debug-browser-cleanup.ps1",
     "verify": "node scripts/invoke-workspace-node.cjs --npm run test && node scripts/invoke-workspace-node.cjs --npm run build",
-    "verify:release": "node scripts/invoke-workspace-node.cjs --npm run verify && node scripts/invoke-workspace-node.cjs --npm run verify:production-migrations && node scripts/invoke-workspace-node.cjs --npm run budget:frontend",
+    "verify:release": "node scripts/invoke-workspace-node.cjs --npm run verify && node scripts/invoke-workspace-node.cjs --npm run verify:production-env && node scripts/invoke-workspace-node.cjs --npm run verify:production-migrations && node scripts/invoke-workspace-node.cjs --npm run budget:frontend",
     "smoke": "node scripts/invoke-workspace-node.cjs scripts/smoke-template.cjs",
     "smoke:ticket-request": "node scripts/invoke-workspace-node.cjs scripts/smoke-ticket-request.cjs",
     "smoke:deployment": "node scripts/invoke-workspace-node.cjs scripts/smoke-deployment.cjs",
