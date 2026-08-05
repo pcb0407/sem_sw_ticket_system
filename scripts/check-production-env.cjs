@@ -21,7 +21,7 @@ const REQUIRED_EXACT = {
 
 const FORBIDDEN_PLACEHOLDERS = [/example/i, /contoso/i, /localhost/i, /<.*>/, /change[-_ ]?me/i, /template/i];
 const LOCAL_DB_TYPES = new Set(["sqlite", "better-sqlite3", "sqljs"]);
-const ROLE_PREFIXES = ["AUDIT", "USER", "TRACE", "SYSTEM", "SERVICE"];
+const ROLE_PREFIXES = ["AUDIT", "USER", "TRACE", "SYSTEM", "SERVICE", "SETTING"];
 
 function read(name) {
   return String(process.env[name] || "").trim();

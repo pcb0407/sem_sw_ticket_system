@@ -7,11 +7,6 @@ import type {
 import { MockJiraTicketGateway } from "./jira/mock-jira.gateway";
 import { MockTicketRequestMasterDataRepository } from "./ticket-request.repository";
 
-function requestId(prefix: string) {
-  const timestamp = Date.now().toString().slice(-8);
-  return `${prefix}-${timestamp}`;
-}
-
 @Injectable()
 export class TicketRequestService {
   constructor(
@@ -26,26 +21,12 @@ export class TicketRequestService {
   async submitPumpTestRigRequest(payload: PumpTestRigRequestPayload): Promise<TicketRequestSubmissionResponse> {
     const jiraIssue = await this.jiraGateway.createIssue(payload);
     await this.jiraGateway.uploadAttachments(jiraIssue.issueKey, payload.attachments);
-
-    return {
-      requestId: requestId("PTR"),
-      jiraIssueKey: jiraIssue.issueKey,
-      createdAtUtc: new Date().toISOString(),
-      status: "accepted",
-      message: "Pump Test Rig request is accepted and queued for Jira sync.",
-    };
+    return this.repository.createPumpTestRigRequest(payload, jiraIssue.issueKey);
   }
 
   async submitControllerSoftwareRequest(payload: ControllerSoftwareRequestPayload): Promise<TicketRequestSubmissionResponse> {
     const jiraIssue = await this.jiraGateway.createIssue(payload);
     await this.jiraGateway.uploadAttachments(jiraIssue.issueKey, payload.attachments);
-
-    return {
-      requestId: requestId("CSR"),
-      jiraIssueKey: jiraIssue.issueKey,
-      createdAtUtc: new Date().toISOString(),
-      status: "accepted",
-      message: "Controller Software request is accepted and queued for Jira sync.",
-    };
+    return this.repository.createControllerSoftwareRequest(payload, jiraIssue.issueKey);
   }
 }
