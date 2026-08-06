@@ -6,8 +6,8 @@
   "main": "dist/main.js",
   "scripts": {
     "prebuild": "node ../scripts/invoke-workspace-node.cjs ../scripts/ensure-local-build-output.cjs backend",
-    "build": "node ../scripts/invoke-workspace-node.cjs node_modules/typescript/lib/tsc.js --project tsconfig.json --pretty false",
-    "test": "node ../scripts/invoke-workspace-node.cjs node_modules/vitest/vitest.mjs run --config vitest.config.ts",
+    "build": "node ../scripts/invoke-workspace-node.cjs ../node_modules/typescript/lib/tsc.js --project tsconfig.json --pretty false",
+    "test": "node ../scripts/invoke-workspace-node.cjs ../node_modules/vitest/vitest.mjs run --config vitest.config.ts",
     "typeorm": "node ../scripts/invoke-workspace-node.cjs -r ts-node/register/transpile-only ../node_modules/typeorm/cli.js",
     "db:migration:generate": "node ../scripts/invoke-workspace-node.cjs -r ts-node/register/transpile-only ../node_modules/typeorm/cli.js migration:generate --dataSource=src/database/data-source.ts",
     "db:migration:run": "node ../scripts/invoke-workspace-node.cjs -r ts-node/register/transpile-only ../node_modules/typeorm/cli.js migration:run --dataSource=src/database/data-source.ts",

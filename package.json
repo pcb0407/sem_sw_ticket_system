@@ -13,12 +13,13 @@
     "deps:install": "node scripts/invoke-workspace-node.cjs --npm install --workspaces --include-workspace-root --no-audit --no-fund",
     "deps:ci": "node scripts/invoke-workspace-node.cjs --npm ci --ignore-scripts --workspaces --include-workspace-root --no-audit --no-fund && node scripts/invoke-workspace-node.cjs --npm run workspace:refresh && node scripts/invoke-workspace-node.cjs --npm run postinstall",
     "preinstall": "node scripts/invoke-workspace-node.cjs scripts/ensure-platform-root.cjs && node scripts/invoke-workspace-node.cjs scripts/assert-local-dev-env.cjs",
-    "postinstall": "node scripts/invoke-workspace-node.cjs scripts/install-platform.cjs && node scripts/invoke-workspace-node.cjs scripts/verify-platform-sync.cjs",
+    "postinstall": "node scripts/invoke-workspace-node.cjs scripts/install-platform.cjs && node scripts/invoke-workspace-node.cjs scripts/verify-common-platform-runtime-fallback.cjs && node scripts/invoke-workspace-node.cjs scripts/verify-platform-sync.cjs",
     "platform:link": "node scripts/invoke-workspace-node.cjs scripts/ensure-platform-root.cjs",
     "platform:adopt": "node scripts/invoke-workspace-node.cjs scripts/ensure-platform-root.cjs --adopt",
     "platform:status": "node scripts/invoke-workspace-node.cjs scripts/ensure-platform-root.cjs --status",
+    "platform:verify-runtime-fallback": "node scripts/invoke-workspace-node.cjs scripts/verify-common-platform-runtime-fallback.cjs",
     "build:shared": "node scripts/invoke-workspace-node.cjs --npm run build --workspace shared",
-    "build:frontend": "cd frontend && node ../scripts/invoke-workspace-node.cjs node_modules/typescript/lib/tsc.js --build --pretty false && node ../scripts/invoke-workspace-node.cjs node_modules/vite/bin/vite.js build --emptyOutDir=false",
+    "build:frontend": "node scripts/invoke-workspace-node.cjs --npm run build --workspace frontend",
     "dev:backend": "node scripts/invoke-workspace-node.cjs --npm run start:dev --workspace backend",
     "dev:frontend": "node scripts/invoke-workspace-node.cjs --npm run dev --workspace frontend",
     "dev": "node scripts/invoke-workspace-node.cjs --npm run workspace:refresh && node scripts/invoke-workspace-node.cjs --npm run postinstall && node scripts/invoke-workspace-node.cjs --npm run build:shared && node scripts/invoke-workspace-node.cjs ./node_modules/concurrently/dist/bin/concurrently.js -n backend,frontend -c blue,green \"npm:dev:backend\" \"npm:dev:frontend\"",
@@ -27,7 +28,14 @@
     "test:debug-cleanup": "node scripts/check-debug-auto-cleanup.cjs",
     "test:debug-cleanup:e2e": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/smoke-debug-browser-cleanup.ps1",
     "verify": "node scripts/invoke-workspace-node.cjs --npm run test && node scripts/invoke-workspace-node.cjs --npm run build",
-    "verify:release": "node scripts/invoke-workspace-node.cjs --npm run verify && node scripts/invoke-workspace-node.cjs --npm run verify:production-env && node scripts/invoke-workspace-node.cjs --npm run verify:production-migrations && node scripts/invoke-workspace-node.cjs --npm run budget:frontend",
+    "verify:artifacts": "node scripts/invoke-workspace-node.cjs scripts/verify-production-artifacts.cjs",
+    "verify:deployment-smoke": "node scripts/invoke-workspace-node.cjs scripts/verify-deployment-smoke.cjs",
+    "verify:dependency-review": "node scripts/invoke-workspace-node.cjs scripts/verify-dependency-review.cjs",
+    "verify:production-config": "node scripts/invoke-workspace-node.cjs scripts/verify-production-config.cjs",
+    "verify:readiness-evidence": "node scripts/invoke-workspace-node.cjs scripts/verify-commercial-readiness-evidence.cjs",
+    "verify:windows-native-runtime": "node scripts/invoke-workspace-node.cjs scripts/verify-windows-native-runtime.cjs",
+    "verify:release": "node scripts/invoke-workspace-node.cjs --npm run verify && node scripts/invoke-workspace-node.cjs --npm run verify:production-env && node scripts/invoke-workspace-node.cjs --npm run verify:artifacts && node scripts/invoke-workspace-node.cjs --npm run verify:production-migrations && node scripts/invoke-workspace-node.cjs --npm run verify:windows-native-runtime && node scripts/invoke-workspace-node.cjs --npm run budget:frontend",
+    "verify:commercial-readiness": "node scripts/invoke-workspace-node.cjs --npm run verify:release && node scripts/invoke-workspace-node.cjs --npm run verify:production-config && node scripts/invoke-workspace-node.cjs --npm run verify:dependency-review && node scripts/invoke-workspace-node.cjs --npm run verify:deployment-smoke && node scripts/invoke-workspace-node.cjs --npm run verify:readiness-evidence",
     "smoke": "node scripts/invoke-workspace-node.cjs scripts/smoke-template.cjs",
     "smoke:ticket-request": "node scripts/invoke-workspace-node.cjs scripts/smoke-ticket-request.cjs",
     "smoke:deployment": "node scripts/invoke-workspace-node.cjs scripts/smoke-deployment.cjs",
@@ -56,6 +64,17 @@
     "node": ">=20.19.0 <21"
   },
   "overrides": {
-    "express": "4.18.2"
+    "express": "4.18.2",
+    "form-data": "^4.0.6",
+    "js-yaml": "^5.2.0",
+    "multer": "^2.2.0",
+    "@nestjs/platform-express": {
+      "multer": "^2.2.0"
+    },
+    "qs": "^6.15.3",
+    "shell-quote": "^1.9.0",
+    "tar": "^7.5.19",
+    "undici": "^6.27.0",
+    "uuid": "^11.1.1"
   }
 }

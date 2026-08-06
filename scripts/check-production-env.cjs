@@ -6,6 +6,7 @@ const { spawnSync } = require("node:child_process");
 
 const workspaceRoot =
   process.env.SEM_APP_WORKSPACE_ROOT ||
+  process.env.TICKET_SYSTEM_WORKSPACE_ROOT ||
   process.env.PUMP_WORKSPACE_ROOT ||
   process.env.BUNDLE_WORKSPACE_ROOT ||
   process.env.WEB_TEMPLATE_WORKSPACE_ROOT ||

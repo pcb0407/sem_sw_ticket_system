@@ -35,6 +35,9 @@ on:
 permissions:
   contents: read
 
+env:
+  NODE_VERSION: 20.19.6
+
 jobs:
   verify-release:
     name: Verify Release Gate
@@ -50,10 +53,13 @@ jobs:
       - name: Setup Node.js launcher
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Prepare dependencies
         run: npm run deps:ci
+
+      - name: Verify platform fallback
+        run: npm run platform:verify-runtime-fallback
 
       - name: Verify release
         run: npm run verify:release
@@ -76,7 +82,7 @@ jobs:
       - name: Setup Node.js launcher
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Prepare dependencies
         run: npm run deps:ci

@@ -38,6 +38,7 @@ process.exit(result.status ?? 0);
 
 function ensureWorkspaceNodeModulesJunctions() {
   const commonPlatformNodeModules = path.join(installRoot, "common-platform", "node_modules");
+  const sourcePlatformNodeModules = path.join(workspaceRoot, "common-platform", "node_modules");
   const junctions = [
     [path.join(workspaceRoot, "node_modules"), path.join(installRoot, "node_modules")],
     [path.join(workspaceRoot, "backend", "node_modules"), path.join(installRoot, "backend", "node_modules")],
@@ -53,6 +54,11 @@ function ensureWorkspaceNodeModulesJunctions() {
 
     if (fs.existsSync(commonPlatformNodeModules)) {
       ensureJunction(linkPath, commonPlatformNodeModules);
+      continue;
+    }
+
+    if (fs.existsSync(sourcePlatformNodeModules)) {
+      ensureJunction(linkPath, sourcePlatformNodeModules);
       continue;
     }
 
@@ -333,6 +339,11 @@ function isSupportedNodeVersion(versionText) {
 }
 
 function getExpectedArchitecture() {
+  const configuredArchitecture = String(process.env.SEM_WORKSPACE_NODE_ARCH || "").trim();
+  if (configuredArchitecture) {
+    return normalizeArchitecture(configuredArchitecture);
+  }
+
   if (process.platform === "win32") {
     return getWindowsHostArchitecture();
   }
@@ -341,16 +352,43 @@ function getExpectedArchitecture() {
 }
 
 function getWindowsHostArchitecture() {
-  if (process.env.PROCESSOR_ARCHITEW6432?.trim()) {
-    return normalizeArchitecture(process.env.PROCESSOR_ARCHITEW6432);
-  }
-
   const processorIdentifier = String(process.env.PROCESSOR_IDENTIFIER || "").toLowerCase();
-  if (processorIdentifier.includes("arm") || processorIdentifier.includes("aarch64")) {
-    return "arm64";
+  const processorIdentifierArchitecture =
+    processorIdentifier.includes("arm") || processorIdentifier.includes("aarch64") ? "arm64" : "";
+
+  for (const candidate of [
+    process.env.PROCESSOR_ARCHITEW6432,
+    getWindowsMachineEnvironmentArchitecture(),
+    processorIdentifierArchitecture,
+    process.env.PROCESSOR_ARCHITECTURE,
+    process.arch,
+  ]) {
+    if (!candidate) continue;
+    const normalized = normalizeArchitecture(candidate);
+    if (normalized) {
+      return normalized;
+    }
   }
 
-  return normalizeArchitecture(process.env.PROCESSOR_ARCHITECTURE || process.arch);
+  return normalizeArchitecture(process.arch);
+}
+
+function getWindowsMachineEnvironmentArchitecture() {
+  if (process.platform !== "win32") {
+    return "";
+  }
+
+  const result = spawnSync(
+    "reg.exe",
+    ["query", "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment", "/v", "PROCESSOR_ARCHITECTURE"],
+    { encoding: "utf8", windowsHide: true },
+  );
+  if (result.status !== 0 || !result.stdout) {
+    return "";
+  }
+
+  const match = result.stdout.match(/PROCESSOR_ARCHITECTURE\s+REG_\w+\s+([^\s]+)/i);
+  return match ? match[1] : "";
 }
 
 function normalizeArchitecture(value) {
@@ -445,8 +483,11 @@ function buildEnvironment() {
     ...process.env,
     SEM_APP_WORKSPACE_ROOT: workspaceRoot,
     SEM_WORKSPACE_NODE_EXE: runtime.nodeExe,
+    SERVICE_PORTAL_WORKSPACE_ROOT: workspaceRoot,
+    TICKET_SYSTEM_WORKSPACE_ROOT: workspaceRoot,
     PUMP_WORKSPACE_ROOT: workspaceRoot,
     BUNDLE_WORKSPACE_ROOT: workspaceRoot,
+    WEB_TEMPLATE_WORKSPACE_ROOT: workspaceRoot,
     NO_UPDATE_NOTIFIER: "1",
     NODE_PATH: [...new Set(nodePathEntries)].join(path.delimiter),
     NODE_OPTIONS: mergeNodeOptions(process.env.NODE_OPTIONS),

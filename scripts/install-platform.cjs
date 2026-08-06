@@ -397,6 +397,19 @@ function ensureWorkspaceInstalled(installOpts) {
   return true;
 }
 
+function resetPlatformWorkspaceDependencies() {
+  const installStampPath = join(stampDir, "platform-install.hash");
+  const nodeModulesRoot = join(platformInstallRoot, "node_modules");
+
+  if (existsSync(nodeModulesRoot)) {
+    removePathWithRetry(nodeModulesRoot);
+  }
+
+  if (existsSync(installStampPath)) {
+    removePathWithRetry(installStampPath);
+  }
+}
+
 function ensurePackageBuilt({ name, sourceRoot, buildRoot, distChecks, stampFile, outputArea }) {
   const currentHash = hashSourceTree(sourceRoot);
   const distExists = distChecks.every((p) => existsSync(p));
@@ -431,7 +444,28 @@ function ensurePackageBuilt({ name, sourceRoot, buildRoot, distChecks, stampFile
   if (sqliteStillUnavailable) {
     runNpm(["rebuild", "sqlite3", "--no-audit", "--no-fund", "--loglevel=warn"], installOpts);
   }
-  runPlatformPackageBuild({ name, buildRoot }, buildOpts);
+
+  let buildAttemptedRecovery = false;
+  while (true) {
+    try {
+      runPlatformPackageBuild({ name, buildRoot }, buildOpts);
+      break;
+    } catch (error) {
+      if (buildAttemptedRecovery) {
+        throw error;
+      }
+
+      buildAttemptedRecovery = true;
+      console.warn(`[bundle postinstall] ${name} build failed; resetting platform workspace dependencies and retrying once.`);
+      resetPlatformWorkspaceDependencies();
+      ensureWorkspaceInstalled(installOpts);
+
+      if (name === "@sem/platform-backend" && !skipSqliteRebuild && !canLoadSqlite3(platformInstallRoot)) {
+        runNpm(["rebuild", "sqlite3", "--no-audit", "--no-fund", "--loglevel=warn"], installOpts);
+      }
+    }
+  }
+
   syncBuiltDistArtifacts({ packageName: name, buildRoot, outputArea });
   ensureAppNodeModuleLink(name, buildRoot);
 
