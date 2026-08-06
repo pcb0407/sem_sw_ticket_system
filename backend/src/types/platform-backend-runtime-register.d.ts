@@ -1,1 +1,0 @@
-declare module "@sem/platform-backend/common/runtime/register-backend-node-modules" {}
