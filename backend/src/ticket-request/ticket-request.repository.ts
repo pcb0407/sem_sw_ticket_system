@@ -1,12 +1,14 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import type {
   ControllerSoftwareRequestPayload,
+  CreateMasterDataOptionInput,
   MasterDataOption,
   PumpTestRigRequestPayload,
   TicketRequestMasterData,
   TicketRequestMasterDataRepository,
   TicketRequestSubmissionResponse,
+  UpdateMasterDataOptionInput,
 } from "@ticket-system/shared";
 import { randomUUID } from "node:crypto";
 import { Repository } from "typeorm";
@@ -211,6 +213,92 @@ export class MockTicketRequestMasterDataRepository implements TicketRequestMaste
         sortOrder: row.sortOrder,
         isActive: row.isActive,
       }));
+  }
+
+  // --- Settings CRUD ---
+
+  async getOptionsByGroup(group: string): Promise<MasterDataOption[]> {
+    await this.ensureMasterDataSeeded();
+    const rows = await this.masterOptionRepository.find({
+      where: { optionGroup: group },
+      order: { sortOrder: "ASC", name: "ASC" },
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      code: row.code,
+      name: row.name,
+      description: row.description ?? undefined,
+      sortOrder: row.sortOrder,
+      isActive: row.isActive,
+    }));
+  }
+
+  async createOption(input: CreateMasterDataOptionInput): Promise<MasterDataOption> {
+    const entity = this.masterOptionRepository.create({
+      id: randomUUID(),
+      optionGroup: input.optionGroup,
+      code: input.code,
+      name: input.name,
+      description: input.description ?? null,
+      sortOrder: input.sortOrder,
+      isActive: input.isActive,
+    });
+    const saved = await this.masterOptionRepository.save(entity);
+    return {
+      id: saved.id,
+      code: saved.code,
+      name: saved.name,
+      description: saved.description ?? undefined,
+      sortOrder: saved.sortOrder,
+      isActive: saved.isActive,
+    };
+  }
+
+  async updateOption(id: string, input: UpdateMasterDataOptionInput): Promise<MasterDataOption> {
+    const entity = await this.masterOptionRepository.findOne({ where: { id } });
+    if (!entity) {
+      throw new NotFoundException(`Option ${id} not found`);
+    }
+    entity.code = input.code;
+    entity.name = input.name;
+    entity.description = input.description ?? null;
+    entity.sortOrder = input.sortOrder;
+    entity.isActive = input.isActive;
+    const saved = await this.masterOptionRepository.save(entity);
+    return {
+      id: saved.id,
+      code: saved.code,
+      name: saved.name,
+      description: saved.description ?? undefined,
+      sortOrder: saved.sortOrder,
+      isActive: saved.isActive,
+    };
+  }
+
+  async deleteOption(id: string): Promise<{ id: string }> {
+    const entity = await this.masterOptionRepository.findOne({ where: { id } });
+    if (!entity) {
+      throw new NotFoundException(`Option ${id} not found`);
+    }
+    await this.masterOptionRepository.remove(entity);
+    return { id };
+  }
+
+  async toggleOptionActive(id: string): Promise<MasterDataOption> {
+    const entity = await this.masterOptionRepository.findOne({ where: { id } });
+    if (!entity) {
+      throw new NotFoundException(`Option ${id} not found`);
+    }
+    entity.isActive = !entity.isActive;
+    const saved = await this.masterOptionRepository.save(entity);
+    return {
+      id: saved.id,
+      code: saved.code,
+      name: saved.name,
+      description: saved.description ?? undefined,
+      sortOrder: saved.sortOrder,
+      isActive: saved.isActive,
+    };
   }
 
   private async saveAttachments(

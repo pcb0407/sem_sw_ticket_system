@@ -2,6 +2,10 @@
 
 a {
 	text-decoration: none;
+}
+
+/* Scope link color to main content; sidebar nav manages its own colors via platform theme */
+.app-main-scroll a {
 	color: #464feb;
 }
 
@@ -126,4 +130,32 @@ tr th {
 	.request-actions .btn-primary {
 		width: 100%;
 	}
+}
+
+/* Setting page option badges */
+.setting-badge {
+	display: inline-block;
+	font-size: 0.72rem;
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 9999px;
+	border: 1px solid transparent;
+	cursor: pointer;
+	transition: opacity 0.15s;
+}
+
+.setting-badge:hover {
+	opacity: 0.75;
+}
+
+.setting-badge--active {
+	background-color: #dcfce7;
+	color: #15803d;
+	border-color: #bbf7d0;
+}
+
+.setting-badge--inactive {
+	background-color: #f1f5f9;
+	color: #64748b;
+	border-color: #e2e8f0;
 }

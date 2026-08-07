@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { BarChart3, ClipboardList, Compass, Cpu, FlaskConical, ListChecks } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BarChart3, ClipboardList, Compass, Cpu, FlaskConical, ListChecks, Settings } from "lucide-react";
 import { Link, matchPath } from "react-router-dom";
 import clsx from "clsx";
 import { UserRole } from "@sem/platform-shared";
@@ -18,14 +18,21 @@ import { activeNavLabelFromPath, type NavTreeItem } from "@sem/platform-frontend
 import type { MainLayoutBranding, MainLayoutHeaderBreadcrumbResolverArgs } from "@sem/platform-frontend/layouts";
 import type {
   ControllerSoftwareRequestPayload,
+  CreateMasterDataOptionInput,
   MasterDataOption,
   PumpTestRigRequestPayload,
   TicketRequestMasterData,
+  UpdateMasterDataOptionInput,
 } from "@ticket-system/shared";
 import {
+  createMasterDataOption,
+  deleteMasterDataOption,
+  fetchMasterDataOptionsByGroup,
   fetchTicketRequestMasterData,
   submitControllerSoftwareRequest,
   submitPumpTestRigRequest,
+  toggleMasterDataOptionActive,
+  updateMasterDataOption,
 } from "./services/ticketRequestApi";
 
 const ROUTE_PATHS = {
@@ -35,6 +42,9 @@ const ROUTE_PATHS = {
   ticketRequest: "/ticket-request",
   pumpTestRigRequest: "/ticket-request/pump-test-rig-request",
   controllerSoftwareRequest: "/ticket-request/controller-software-request",
+  ticketRequestSetting: "/ticket-request-setting",
+  pumpTestRigSetting: "/ticket-request-setting/pump-test-rig",
+  controllerSoftwareSetting: "/ticket-request-setting/controller-software",
 } as const;
 
 const navTree: NavTreeItem[] = [
@@ -75,23 +85,26 @@ const navTree: NavTreeItem[] = [
       },
     ],
   },
-];
-
-const destinationDescriptions: Record<string, string> = {
-  dashboard: "Starter metrics and replacement points for a derived SEM SW application.",
-  "pump-test-rig-request": "Submit and track Pump Test Rig issues with standard templates and attachments.",
-  "controller-software-request": "Submit controller software issues including version details and reproducible evidence.",
-};
-
-const branding: MainLayoutBranding = {
-  productName: "SEM SW Ticket System",
-  productTag: "Internal Request Portal",
-  logoSrc: EDWARDS_LOGO_SRC,
-  logoAlt: "Edwards",
-  iconSrc: EDWARDS_ICON_SRC,
-  iconAlt: "Edwards E",
-  homePath: ROUTE_PATHS.ticketRequest,
-  headerHomePath: ROUTE_PATHS.ticketRequest,
+  {
+    id: "ticket-request-setting",
+    to: ROUTE_PATHS.ticketRequestSetting,
+    label: "Ticket Request Setting",
+    icon: <Settings size={16} />,
+    children: [
+      {
+        id: "pump-test-rig-setting",
+        label: "Pump Test Rig Request",
+        to: ROUTE_PATHS.pumpTestRigSetting,
+        icon: <FlaskConical size={16} />,
+      },
+      {
+        id: "controller-software-setting",
+        label: "Controller Software Request",
+        to: ROUTE_PATHS.controllerSoftwareSetting,
+        icon: <Cpu size={16} />,
+      },
+    ],
+  },
   rootBreadcrumbLabel: "Ticket Request",
   storageKeyPrefix: "ticket-system",
   screenshotFilePrefix: "ticket-system",
@@ -129,6 +142,24 @@ function getHeaderNavBreadcrumbs({ pathname, navTrail, moreTrail }: MainLayoutHe
     return [
       { label: "Ticket Request", to: ROUTE_PATHS.ticketRequest },
       { label: "Controller Software Request", to: ROUTE_PATHS.controllerSoftwareRequest },
+    ];
+  }
+
+  if (matchPath({ path: ROUTE_PATHS.ticketRequestSetting, end: true }, normalizedPathname)) {
+    return [{ label: "Ticket Request Setting", to: ROUTE_PATHS.ticketRequestSetting }];
+  }
+
+  if (matchPath({ path: ROUTE_PATHS.pumpTestRigSetting, end: true }, normalizedPathname)) {
+    return [
+      { label: "Ticket Request Setting", to: ROUTE_PATHS.ticketRequestSetting },
+      { label: "Pump Test Rig Request", to: ROUTE_PATHS.pumpTestRigSetting },
+    ];
+  }
+
+  if (matchPath({ path: ROUTE_PATHS.controllerSoftwareSetting, end: true }, normalizedPathname)) {
+    return [
+      { label: "Ticket Request Setting", to: ROUTE_PATHS.ticketRequestSetting },
+      { label: "Controller Software Request", to: ROUTE_PATHS.controllerSoftwareSetting },
     ];
   }
 
@@ -850,6 +881,344 @@ function ControllerSoftwareRequestPage() {
   );
 }
 
+// --- Ticket Request Settings ---
+
+type OptionEditState = {
+  code: string;
+  name: string;
+  description: string;
+  sortOrder: string;
+  isActive: boolean;
+};
+
+const BLANK_OPTION_STATE: OptionEditState = { code: "", name: "", description: "", sortOrder: "0", isActive: true };
+
+function SettingOptionTable({
+  title,
+  groupKey,
+}: {
+  title: string;
+  groupKey: string;
+}) {
+  const queryClient = useQueryClient();
+  const queryKey = ["setting-options", groupKey];
+
+  const optionsQuery = useQuery({
+    queryKey,
+    queryFn: () => fetchMasterDataOptionsByGroup(groupKey),
+  });
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [addingNew, setAddingNew] = useState(false);
+  const [editState, setEditState] = useState<OptionEditState>(BLANK_OPTION_STATE);
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey });
+
+  const createMutation = useMutation({
+    mutationFn: (input: CreateMasterDataOptionInput) => createMasterDataOption(input),
+    onSuccess: () => { setAddingNew(false); setEditState(BLANK_OPTION_STATE); invalidate(); },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, input }: { id: string; input: UpdateMasterDataOptionInput }) =>
+      updateMasterDataOption(id, input),
+    onSuccess: () => { setEditingId(null); invalidate(); },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteMasterDataOption,
+    onSuccess: () => invalidate(),
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: toggleMasterDataOptionActive,
+    onSuccess: () => invalidate(),
+  });
+
+  const updateEdit = <K extends keyof OptionEditState>(key: K, value: OptionEditState[K]) =>
+    setEditState((s) => ({ ...s, [key]: value }));
+
+  const toEditInput = (): UpdateMasterDataOptionInput => ({
+    code: editState.code.trim(),
+    name: editState.name.trim(),
+    description: editState.description.trim() || undefined,
+    sortOrder: Number(editState.sortOrder) || 0,
+    isActive: editState.isActive,
+  });
+
+  const startEdit = (option: MasterDataOption) => {
+    setAddingNew(false);
+    setEditingId(option.id);
+    setEditState({
+      code: option.code,
+      name: option.name,
+      description: option.description ?? "",
+      sortOrder: String(option.sortOrder),
+      isActive: option.isActive,
+    });
+  };
+
+  const cancelEdit = () => { setEditingId(null); setAddingNew(false); setEditState(BLANK_OPTION_STATE); };
+
+  const startAdd = (currentCount: number) => {
+    setEditingId(null);
+    setAddingNew(true);
+    setEditState({ ...BLANK_OPTION_STATE, sortOrder: String(currentCount) });
+  };
+
+  const handleDelete = (id: string, name: string) => {
+    if (window.confirm(`"${name}"을(를) 삭제하시겠습니까?`)) {
+      deleteMutation.mutate(id);
+    }
+  };
+
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
+  const mutationError =
+    createMutation.error?.message ??
+    updateMutation.error?.message ??
+    deleteMutation.error?.message ??
+    null;
+
+  const sorted = [...(optionsQuery.data ?? [])].sort(
+    (a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name),
+  );
+
+  return (
+    <PageSection
+      title={title}
+      badges={<SectionBadge>{sorted.length} items</SectionBadge>}
+      actions={
+        <button
+          type="button"
+          className="btn-primary"
+          style={{ fontSize: "0.8rem", padding: "4px 12px" }}
+          onClick={() => startAdd(sorted.length)}
+          disabled={addingNew || editingId !== null}
+        >
+          + Add Item
+        </button>
+      }
+    >
+      {optionsQuery.isPending && <p className="panel-text-muted text-sm">Loading...</p>}
+      {optionsQuery.isError && <p className="request-error">Failed to load options: {optionsQuery.error.message}</p>}
+      {mutationError && <p className="request-error mb-2">{mutationError}</p>}
+
+      {!optionsQuery.isPending && (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr>
+                <th className="text-left px-3 py-2 w-16">Order</th>
+                <th className="text-left px-3 py-2 w-32">Code</th>
+                <th className="text-left px-3 py-2">Name</th>
+                <th className="text-left px-3 py-2">Description</th>
+                <th className="text-left px-3 py-2 w-24">Active</th>
+                <th className="text-left px-3 py-2 w-36">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map((option) =>
+                editingId === option.id ? (
+                  <tr key={option.id}>
+                    <td className="px-3 py-2">
+                      <input
+                        type="number"
+                        className="form-input"
+                        style={{ width: "4rem" }}
+                        value={editState.sortOrder}
+                        onChange={(e) => updateEdit("sortOrder", e.target.value)}
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <input className="form-input" value={editState.code} onChange={(e) => updateEdit("code", e.target.value)} />
+                    </td>
+                    <td className="px-3 py-2">
+                      <input className="form-input" value={editState.name} onChange={(e) => updateEdit("name", e.target.value)} />
+                    </td>
+                    <td className="px-3 py-2">
+                      <input className="form-input" value={editState.description} onChange={(e) => updateEdit("description", e.target.value)} />
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <input type="checkbox" checked={editState.isActive} onChange={(e) => updateEdit("isActive", e.target.checked)} />
+                    </td>
+                    <td className="px-3 py-2">
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          className="btn-primary"
+                          style={{ fontSize: "0.75rem", padding: "2px 10px" }}
+                          onClick={() => updateMutation.mutate({ id: option.id, input: toEditInput() })}
+                          disabled={isSubmitting}
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-ghost"
+                          style={{ fontSize: "0.75rem", padding: "2px 10px" }}
+                          onClick={cancelEdit}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  <tr key={option.id}>
+                    <td className="px-3 py-2 text-slate-500">{option.sortOrder}</td>
+                    <td className="px-3 py-2 font-mono text-xs">{option.code}</td>
+                    <td className="px-3 py-2 font-medium">{option.name}</td>
+                    <td className="px-3 py-2 text-slate-400 text-xs">{option.description ?? "-"}</td>
+                    <td className="px-3 py-2 text-center">
+                      <button
+                        type="button"
+                        className={clsx(
+                          "setting-badge",
+                          option.isActive ? "setting-badge--active" : "setting-badge--inactive",
+                        )}
+                        onClick={() => toggleMutation.mutate(option.id)}
+                        disabled={toggleMutation.isPending}
+                        title={option.isActive ? "Click to deactivate" : "Click to activate"}
+                      >
+                        {option.isActive ? "Active" : "Inactive"}
+                      </button>
+                    </td>
+                    <td className="px-3 py-2">
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          className="btn-ghost"
+                          style={{ fontSize: "0.75rem", padding: "2px 10px" }}
+                          onClick={() => startEdit(option)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-ghost"
+                          style={{ fontSize: "0.75rem", padding: "2px 10px", color: "#be123c" }}
+                          onClick={() => handleDelete(option.id, option.name)}
+                          disabled={deleteMutation.isPending}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ),
+              )}
+              {addingNew && (
+                <tr>
+                  <td className="px-3 py-2">
+                    <input
+                      type="number"
+                      className="form-input"
+                      style={{ width: "4rem" }}
+                      value={editState.sortOrder}
+                      onChange={(e) => updateEdit("sortOrder", e.target.value)}
+                      placeholder="0"
+                    />
+                  </td>
+                  <td className="px-3 py-2">
+                    <input className="form-input" value={editState.code} onChange={(e) => updateEdit("code", e.target.value)} placeholder="CODE" />
+                  </td>
+                  <td className="px-3 py-2">
+                    <input className="form-input" value={editState.name} onChange={(e) => updateEdit("name", e.target.value)} placeholder="Name" />
+                  </td>
+                  <td className="px-3 py-2">
+                    <input className="form-input" value={editState.description} onChange={(e) => updateEdit("description", e.target.value)} placeholder="Optional description" />
+                  </td>
+                  <td className="px-3 py-2 text-center">
+                    <input type="checkbox" checked={editState.isActive} onChange={(e) => updateEdit("isActive", e.target.checked)} />
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        className="btn-primary"
+                        style={{ fontSize: "0.75rem", padding: "2px 10px" }}
+                        onClick={() =>
+                          createMutation.mutate({ ...toEditInput(), optionGroup: groupKey })
+                        }
+                        disabled={isSubmitting}
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-ghost"
+                        style={{ fontSize: "0.75rem", padding: "2px 10px" }}
+                        onClick={cancelEdit}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {sorted.length === 0 && !addingNew && (
+                <tr>
+                  <td colSpan={6} className="px-3 py-6 text-center text-slate-400">
+                    No items yet. Click &ldquo;+ Add Item&rdquo; to get started.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </PageSection>
+  );
+}
+
+function PumpTestRigSettingPage() {
+  return (
+    <PageBody>
+      <PageHeader
+        icon={<Settings size={18} />}
+        title="Pump Test Rig Request — Setting"
+        badges={
+          <>
+            <PageHeaderBadge>Master Data</PageHeaderBadge>
+            <PageHeaderBadge>DB Connected</PageHeaderBadge>
+          </>
+        }
+      />
+      <SettingOptionTable title="Rig Types" groupKey="rig-types" />
+      <SettingOptionTable title="Issue Types" groupKey="issue-types" />
+      <SettingOptionTable title="Issued Sites" groupKey="issued-sites" />
+      <SettingOptionTable title="Products" groupKey="products" />
+      <SettingOptionTable title="Categories" groupKey="categories" />
+      <SettingOptionTable title="Priorities" groupKey="priorities" />
+      <SettingOptionTable title="Request Sources" groupKey="request-sources" />
+    </PageBody>
+  );
+}
+
+function ControllerSoftwareSettingPage() {
+  return (
+    <PageBody>
+      <PageHeader
+        icon={<Settings size={18} />}
+        title="Controller Software Request — Setting"
+        badges={
+          <>
+            <PageHeaderBadge>Master Data</PageHeaderBadge>
+            <PageHeaderBadge>DB Connected</PageHeaderBadge>
+          </>
+        }
+      />
+      <SettingOptionTable title="Controller Types" groupKey="controller-types" />
+      <SettingOptionTable title="Software Main Versions" groupKey="software-main-versions" />
+      <SettingOptionTable title="Software Sub Versions" groupKey="software-sub-versions" />
+      <SettingOptionTable title="Products" groupKey="products" />
+      <SettingOptionTable title="Categories" groupKey="categories" />
+      <SettingOptionTable title="Priorities" groupKey="priorities" />
+      <SettingOptionTable title="Request Sources" groupKey="request-sources" />
+    </PageBody>
+  );
+}
+
 function TicketRequestHubPage() {
   return (
     <PageBody>
@@ -907,6 +1276,9 @@ export function App() {
         { path: ROUTE_PATHS.ticketRequest, element: <TicketRequestHubPage /> },
         { path: ROUTE_PATHS.pumpTestRigRequest, element: <PumpTestRigRequestPage /> },
         { path: ROUTE_PATHS.controllerSoftwareRequest, element: <ControllerSoftwareRequestPage /> },
+        { path: ROUTE_PATHS.ticketRequestSetting, element: <PumpTestRigSettingPage /> },
+        { path: ROUTE_PATHS.pumpTestRigSetting, element: <PumpTestRigSettingPage /> },
+        { path: ROUTE_PATHS.controllerSoftwareSetting, element: <ControllerSoftwareSettingPage /> },
       ]}
     />
   );

@@ -77,3 +77,20 @@ export interface JiraTicketGateway {
 	syncStatus(issueKey: string): Promise<{ status: string }>;
 	getComments(issueKey: string): Promise<Array<{ author: string; body: string; createdAtUtc: string }>>;
 }
+
+export interface CreateMasterDataOptionInput {
+	optionGroup: string;
+	code: string;
+	name: string;
+	description?: string;
+	sortOrder: number;
+	isActive: boolean;
+}
+
+export interface UpdateMasterDataOptionInput {
+	code: string;
+	name: string;
+	description?: string;
+	sortOrder: number;
+	isActive: boolean;
+}
