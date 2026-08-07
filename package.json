@@ -51,7 +51,7 @@
     "eslint": "^8.57.1",
     "selfsigned": "^2.4.1",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.7"
+    "vitest": "^4.1.9"
   },
   "engines": {
     "node": ">=20.19.0 <21"

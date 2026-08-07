@@ -1,0 +1,106 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/dev.Dockerfile
+    working_dir: /workspace
+    command:
+      - /bin/sh
+      - docker/dev-bootstrap.sh
+      - backend
+    environment:
+      DEV_APPHOST_RUNTIME: docker
+      TICKET_SYSTEM_SKIP_LOCAL_DEV_ENV_CHECK: '1'
+      DEV_FRONTEND_BIND_HOST: 0.0.0.0
+      DEV_BACKEND_BIND_HOST: 0.0.0.0
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: 'true'
+      CHOKIDAR_INTERVAL: '500'
+      TSC_WATCHFILE: UsePolling
+      TSC_WATCHDIRECTORY: UsePolling
+      WATCHPACK_POLLING: 'true'
+    env_file:
+      - .env.development
+    ports:
+      - '5000:5000'
+    networks:
+      default:
+        aliases:
+          - backend
+    volumes:
+      - .:/workspace
+      - ticket_node_modules:/workspace/node_modules
+      - ticket_backend_node_modules:/workspace/backend/node_modules
+      - ticket_frontend_node_modules:/workspace/frontend/node_modules
+      - ticket_shared_node_modules:/workspace/shared/node_modules
+
+  backend-debug:
+    build:
+      context: .
+      dockerfile: docker/dev.Dockerfile
+    working_dir: /workspace
+    command:
+      - /bin/sh
+      - docker/dev-bootstrap.sh
+      - backend-debug
+    environment:
+      DEV_APPHOST_RUNTIME: docker
+      TICKET_SYSTEM_SKIP_LOCAL_DEV_ENV_CHECK: '1'
+      DEV_FRONTEND_BIND_HOST: 0.0.0.0
+      DEV_BACKEND_BIND_HOST: 0.0.0.0
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: 'true'
+      CHOKIDAR_INTERVAL: '500'
+      TSC_WATCHFILE: UsePolling
+      TSC_WATCHDIRECTORY: UsePolling
+      WATCHPACK_POLLING: 'true'
+    env_file:
+      - .env.development
+    ports:
+      - '5000:5000'
+      - '127.0.0.1:9229:9229'
+    networks:
+      default:
+        aliases:
+          - backend
+    volumes:
+      - .:/workspace
+      - ticket_node_modules:/workspace/node_modules
+      - ticket_backend_node_modules:/workspace/backend/node_modules
+      - ticket_frontend_node_modules:/workspace/frontend/node_modules
+      - ticket_shared_node_modules:/workspace/shared/node_modules
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/dev.Dockerfile
+    working_dir: /workspace
+    command:
+      - /bin/sh
+      - docker/dev-bootstrap.sh
+      - frontend
+    environment:
+      DEV_APPHOST_RUNTIME: docker
+      TICKET_SYSTEM_SKIP_LOCAL_DEV_ENV_CHECK: '1'
+      DEV_FRONTEND_BIND_HOST: 0.0.0.0
+      DEV_BACKEND_PROXY_HOST: backend
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: 'true'
+      CHOKIDAR_INTERVAL: '500'
+      WATCHPACK_POLLING: 'true'
+    env_file:
+      - .env.development
+    ports:
+      - '5173:5173'
+    volumes:
+      - .:/workspace
+      - ticket_node_modules:/workspace/node_modules
+      - ticket_backend_node_modules:/workspace/backend/node_modules
+      - ticket_frontend_node_modules:/workspace/frontend/node_modules
+      - ticket_shared_node_modules:/workspace/shared/node_modules
+
+volumes:
+  ticket_node_modules:
+  ticket_backend_node_modules:
+  ticket_frontend_node_modules:
+  ticket_shared_node_modules:
