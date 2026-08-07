@@ -7,7 +7,8 @@
     "prebuild": "node ../scripts/invoke-workspace-node.cjs ../scripts/ensure-local-build-output.cjs frontend",
     "dev": "node ../scripts/invoke-workspace-node.cjs ../node_modules/vite/bin/vite.js",
     "build": "node ../scripts/invoke-workspace-node.cjs ../node_modules/typescript/lib/tsc.js --build --pretty false && node ../scripts/invoke-workspace-node.cjs ../node_modules/vite/bin/vite.js build --emptyOutDir=false",
-    "test": "node ../scripts/invoke-workspace-node.cjs ../node_modules/vitest/vitest.mjs run --config vitest.config.ts"
+    "test": "node ../scripts/invoke-workspace-node.cjs ../node_modules/vitest/vitest.mjs run --config vitest.config.ts",
+    "lint": "node ../scripts/invoke-workspace-node.cjs ../node_modules/eslint/bin/eslint.js \"src/**/*.ts\" \"src/**/*.tsx\" \"test/**/*.ts\" \"test/**/*.tsx\" vite.config.ts --config ../.eslintrc.cjs --max-warnings 0"
   },
   "dependencies": {
     "@ticket-system/shared": "file:../shared",
@@ -30,7 +31,7 @@
     "postcss": "^8.4.47",
     "postcss-import": "^15.1.0",
     "tailwindcss": "^3.4.13",
-    "typescript": "^5.4.0",
-    "vite": "^5.4.0"
+    "typescript": "^6.0.3",
+    "vite": "^8.1.0"
   }
 }

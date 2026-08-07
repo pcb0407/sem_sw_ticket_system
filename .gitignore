@@ -7,14 +7,30 @@ dist/
 build/
 output/
 coverage/
+.vite/
+.cache/
 .turbo/
 .next/
+out/
 *.log
 *.tsbuildinfo
 backend/tsconfig.shadow.json
 backend/.apphost-tsconfig.shadow.json
 .DS_Store
 Thumbs.db
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# VS Code debug artifacts
+.vscode/.logs/
+.vscode/.edge-*/
+.vscode/.edge-*-profile/
+
+# Vite temp files
+frontend/vite.config.ts.timestamp-*.mjs
 
 # Codex local state
 .codex/

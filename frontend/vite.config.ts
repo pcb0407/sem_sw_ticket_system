@@ -1,5 +1,4 @@
-import { defineConfig, loadEnv } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig, loadEnv, type PluginOption } from "vite";
 import path from "node:path";
 import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -7,6 +6,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Socket } from "node:net";
 
 const require = createRequire(import.meta.url);
+const reactPlugins = loadReactPlugins();
 const postcssImport = require("postcss-import");
 const tailwindcss = require("tailwindcss");
 const autoprefixer = require("autoprefixer");
@@ -45,6 +45,16 @@ type PackageJson = {
 
 function readPackageJson(relativePath: string) {
   return JSON.parse(readFileSync(path.resolve(__dirname, relativePath), "utf-8")) as PackageJson;
+}
+
+function loadReactPlugins(): PluginOption[] {
+  try {
+    const reactPluginModule = require("@vitejs/plugin-react") as { default?: (...args: unknown[]) => PluginOption } | ((...args: unknown[]) => PluginOption);
+    const reactFactory = typeof reactPluginModule === "function" ? reactPluginModule : reactPluginModule.default;
+    return typeof reactFactory === "function" ? [reactFactory()] : [];
+  } catch {
+    return [];
+  }
 }
 
 function resolveNodeModulesWithPackage(packageName: string, fallback: string) {
@@ -114,7 +124,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     envDir: workspaceRoot,
-    plugins: [react()],
+    plugins: [...reactPlugins],
     define: {
       __APP_VERSION__: JSON.stringify(workspacePackages.find(({ area }) => area === "Frontend")?.packageJson.version ?? "0.0.0"),
       __APP_BUILD_DATE__: JSON.stringify(new Date().toISOString()),

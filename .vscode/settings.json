@@ -1,5 +1,7 @@
-﻿{
+{
     "github.copilot.chat.codeGeneration.useInstructionFiles":  true,
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
     "files.exclude": {
         "**/node_modules": true,
         "**/node_modules/**": true,
