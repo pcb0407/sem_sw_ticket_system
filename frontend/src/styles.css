@@ -1,5 +1,15 @@
 @import "@sem/platform-frontend/styles/index.css";
 
+:root {
+	--color-danger: #be123c;
+	--color-badge-active-bg: #dcfce7;
+	--color-badge-active-text: #15803d;
+	--color-badge-active-border: #bbf7d0;
+	--color-badge-inactive-bg: #f1f5f9;
+	--color-badge-inactive-text: #64748b;
+	--color-badge-inactive-border: #e2e8f0;
+}
+
 a {
 	text-decoration: none;
 }
@@ -50,7 +60,7 @@ tr th {
 }
 
 .request-required {
-	color: #be123c;
+	color: var(--color-danger);
 }
 
 .request-error {
@@ -132,6 +142,25 @@ tr th {
 	}
 }
 
+/* Setting page utility classes */
+.setting-action-btn {
+	font-size: 0.8rem;
+	padding: 4px 12px;
+}
+
+.setting-row-btn {
+	font-size: 0.75rem;
+	padding: 2px 10px;
+}
+
+.setting-row-btn--danger {
+	color: var(--color-danger);
+}
+
+.setting-input-order {
+	width: 4rem;
+}
+
 /* Setting page option badges */
 .setting-badge {
 	display: inline-block;
@@ -149,13 +178,13 @@ tr th {
 }
 
 .setting-badge--active {
-	background-color: #dcfce7;
-	color: #15803d;
-	border-color: #bbf7d0;
+	background-color: var(--color-badge-active-bg);
+	color: var(--color-badge-active-text);
+	border-color: var(--color-badge-active-border);
 }
 
 .setting-badge--inactive {
-	background-color: #f1f5f9;
-	color: #64748b;
-	border-color: #e2e8f0;
+	background-color: var(--color-badge-inactive-bg);
+	color: var(--color-badge-inactive-text);
+	border-color: var(--color-badge-inactive-border);
 }

@@ -19,11 +19,13 @@ import type { MainLayoutBranding, MainLayoutHeaderBreadcrumbResolverArgs } from 
 import type {
   ControllerSoftwareRequestPayload,
   CreateMasterDataOptionInput,
+  MasterDataGroupValue,
   MasterDataOption,
   PumpTestRigRequestPayload,
   TicketRequestMasterData,
   UpdateMasterDataOptionInput,
 } from "@ticket-system/shared";
+import { MASTER_DATA_GROUPS } from "@ticket-system/shared";
 import {
   createMasterDataOption,
   deleteMasterDataOption,
@@ -105,6 +107,23 @@ const navTree: NavTreeItem[] = [
       },
     ],
   },
+];
+
+const destinationDescriptions: Record<string, string> = {
+  dashboard: "Starter metrics and replacement points for a derived SEM SW application.",
+  "pump-test-rig-request": "Submit and track Pump Test Rig issues with standard templates and attachments.",
+  "controller-software-request": "Submit controller software issues including version details and reproducible evidence.",
+};
+
+const branding: MainLayoutBranding = {
+  productName: "SEM SW Ticket System",
+  productTag: "Internal Request Portal",
+  logoSrc: EDWARDS_LOGO_SRC,
+  logoAlt: "Edwards",
+  iconSrc: EDWARDS_ICON_SRC,
+  iconAlt: "Edwards E",
+  homePath: ROUTE_PATHS.ticketRequest,
+  headerHomePath: ROUTE_PATHS.ticketRequest,
   rootBreadcrumbLabel: "Ticket Request",
   storageKeyPrefix: "ticket-system",
   screenshotFilePrefix: "ticket-system",
@@ -898,7 +917,7 @@ function SettingOptionTable({
   groupKey,
 }: {
   title: string;
-  groupKey: string;
+  groupKey: MasterDataGroupValue;
 }) {
   const queryClient = useQueryClient();
   const queryKey = ["setting-options", groupKey];
@@ -990,8 +1009,7 @@ function SettingOptionTable({
       actions={
         <button
           type="button"
-          className="btn-primary"
-          style={{ fontSize: "0.8rem", padding: "4px 12px" }}
+          className="btn-primary setting-action-btn"
           onClick={() => startAdd(sorted.length)}
           disabled={addingNew || editingId !== null}
         >
@@ -1023,8 +1041,7 @@ function SettingOptionTable({
                     <td className="px-3 py-2">
                       <input
                         type="number"
-                        className="form-input"
-                        style={{ width: "4rem" }}
+                        className="form-input setting-input-order"
                         value={editState.sortOrder}
                         onChange={(e) => updateEdit("sortOrder", e.target.value)}
                       />
@@ -1045,8 +1062,7 @@ function SettingOptionTable({
                       <div className="flex gap-2">
                         <button
                           type="button"
-                          className="btn-primary"
-                          style={{ fontSize: "0.75rem", padding: "2px 10px" }}
+                          className="btn-primary setting-row-btn"
                           onClick={() => updateMutation.mutate({ id: option.id, input: toEditInput() })}
                           disabled={isSubmitting}
                         >
@@ -1054,8 +1070,7 @@ function SettingOptionTable({
                         </button>
                         <button
                           type="button"
-                          className="btn-ghost"
-                          style={{ fontSize: "0.75rem", padding: "2px 10px" }}
+                          className="btn-ghost setting-row-btn"
                           onClick={cancelEdit}
                         >
                           Cancel
@@ -1087,16 +1102,14 @@ function SettingOptionTable({
                       <div className="flex gap-2">
                         <button
                           type="button"
-                          className="btn-ghost"
-                          style={{ fontSize: "0.75rem", padding: "2px 10px" }}
+                          className="btn-ghost setting-row-btn"
                           onClick={() => startEdit(option)}
                         >
                           Edit
                         </button>
                         <button
                           type="button"
-                          className="btn-ghost"
-                          style={{ fontSize: "0.75rem", padding: "2px 10px", color: "#be123c" }}
+                          className="btn-ghost setting-row-btn setting-row-btn--danger"
                           onClick={() => handleDelete(option.id, option.name)}
                           disabled={deleteMutation.isPending}
                         >
@@ -1112,8 +1125,7 @@ function SettingOptionTable({
                   <td className="px-3 py-2">
                     <input
                       type="number"
-                      className="form-input"
-                      style={{ width: "4rem" }}
+                      className="form-input setting-input-order"
                       value={editState.sortOrder}
                       onChange={(e) => updateEdit("sortOrder", e.target.value)}
                       placeholder="0"
@@ -1135,8 +1147,7 @@ function SettingOptionTable({
                     <div className="flex gap-2">
                       <button
                         type="button"
-                        className="btn-primary"
-                        style={{ fontSize: "0.75rem", padding: "2px 10px" }}
+                        className="btn-primary setting-row-btn"
                         onClick={() =>
                           createMutation.mutate({ ...toEditInput(), optionGroup: groupKey })
                         }
@@ -1146,8 +1157,7 @@ function SettingOptionTable({
                       </button>
                       <button
                         type="button"
-                        className="btn-ghost"
-                        style={{ fontSize: "0.75rem", padding: "2px 10px" }}
+                        className="btn-ghost setting-row-btn"
                         onClick={cancelEdit}
                       >
                         Cancel
@@ -1184,13 +1194,13 @@ function PumpTestRigSettingPage() {
           </>
         }
       />
-      <SettingOptionTable title="Rig Types" groupKey="rig-types" />
-      <SettingOptionTable title="Issue Types" groupKey="issue-types" />
-      <SettingOptionTable title="Issued Sites" groupKey="issued-sites" />
-      <SettingOptionTable title="Products" groupKey="products" />
-      <SettingOptionTable title="Categories" groupKey="categories" />
-      <SettingOptionTable title="Priorities" groupKey="priorities" />
-      <SettingOptionTable title="Request Sources" groupKey="request-sources" />
+      <SettingOptionTable title="Rig Types" groupKey={MASTER_DATA_GROUPS.rigTypes} />
+      <SettingOptionTable title="Issue Types" groupKey={MASTER_DATA_GROUPS.issueTypes} />
+      <SettingOptionTable title="Issued Sites" groupKey={MASTER_DATA_GROUPS.issuedSites} />
+      <SettingOptionTable title="Products" groupKey={MASTER_DATA_GROUPS.products} />
+      <SettingOptionTable title="Categories" groupKey={MASTER_DATA_GROUPS.categories} />
+      <SettingOptionTable title="Priorities" groupKey={MASTER_DATA_GROUPS.priorities} />
+      <SettingOptionTable title="Request Sources" groupKey={MASTER_DATA_GROUPS.requestSources} />
     </PageBody>
   );
 }
@@ -1208,13 +1218,13 @@ function ControllerSoftwareSettingPage() {
           </>
         }
       />
-      <SettingOptionTable title="Controller Types" groupKey="controller-types" />
-      <SettingOptionTable title="Software Main Versions" groupKey="software-main-versions" />
-      <SettingOptionTable title="Software Sub Versions" groupKey="software-sub-versions" />
-      <SettingOptionTable title="Products" groupKey="products" />
-      <SettingOptionTable title="Categories" groupKey="categories" />
-      <SettingOptionTable title="Priorities" groupKey="priorities" />
-      <SettingOptionTable title="Request Sources" groupKey="request-sources" />
+      <SettingOptionTable title="Controller Types" groupKey={MASTER_DATA_GROUPS.controllerTypes} />
+      <SettingOptionTable title="Software Main Versions" groupKey={MASTER_DATA_GROUPS.softwareMainVersions} />
+      <SettingOptionTable title="Software Sub Versions" groupKey={MASTER_DATA_GROUPS.softwareSubVersions} />
+      <SettingOptionTable title="Products" groupKey={MASTER_DATA_GROUPS.products} />
+      <SettingOptionTable title="Categories" groupKey={MASTER_DATA_GROUPS.categories} />
+      <SettingOptionTable title="Priorities" groupKey={MASTER_DATA_GROUPS.priorities} />
+      <SettingOptionTable title="Request Sources" groupKey={MASTER_DATA_GROUPS.requestSources} />
     </PageBody>
   );
 }
