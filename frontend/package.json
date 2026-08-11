@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "prebuild": "node ../scripts/invoke-workspace-node.cjs ../scripts/ensure-local-build-output.cjs frontend",
-    "dev": "node ../scripts/invoke-workspace-node.cjs ../node_modules/vite/bin/vite.js",
-    "build": "node ../scripts/invoke-workspace-node.cjs ../node_modules/typescript/lib/tsc.js --build --pretty false && node ../scripts/invoke-workspace-node.cjs ../node_modules/vite/bin/vite.js build --emptyOutDir=false",
+    "dev": "node ../scripts/invoke-workspace-node.cjs ./node_modules/vite/bin/vite.js",
+    "build": "node ../scripts/invoke-workspace-node.cjs ../node_modules/typescript/lib/tsc.js --build --pretty false && node ../scripts/invoke-workspace-node.cjs ./node_modules/vite/bin/vite.js build --emptyOutDir=false",
     "test": "node ../scripts/invoke-workspace-node.cjs ../node_modules/vitest/vitest.mjs run --config vitest.config.ts",
     "lint": "node ../scripts/invoke-workspace-node.cjs ../node_modules/eslint/bin/eslint.js \"src/**/*.ts\" \"src/**/*.tsx\" \"test/**/*.ts\" \"test/**/*.tsx\" vite.config.ts --config ../.eslintrc.cjs --max-warnings 0"
   },
@@ -23,7 +23,6 @@
     "react-router-dom": "^6.26.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.7",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
@@ -32,6 +31,8 @@
     "postcss-import": "^15.1.0",
     "tailwindcss": "^3.4.13",
     "typescript": "^6.0.3",
-    "vite": "^8.1.0"
+    "vite": "^8.1.0",
+    "vitest": "^4.1.9"
   }
 }
+
