@@ -368,6 +368,7 @@ The VS Code Run/Debug prelaunch chain for this workspace is shared across:
 - pump_sw_requirement_spec
 - sem_sw_service_portal
 - sem_sw_ticket_system
+- sem_sw_web_template
 
 All projects delegate to the same PowerShell scripts under:
 

@@ -21,4 +21,29 @@ describe("App navigation", () => {
     expect(source).toContain("Pump Test Rig Request");
     expect(source).toContain("Controller Software Request");
   });
+
+  it("registers the help center portal route and navigation entry", () => {
+    const source = readFileSync(path.join(currentDir, "App.tsx"), "utf-8");
+
+    expect(source).toContain('helpCenter: "/help-center"');
+    expect(source).toContain('label: "Help Center"');
+    expect(source).toContain("{ path: ROUTE_PATHS.helpCenter, element: <HelpCenterPage /> }");
+  });
+
+  it("renders the portal request type picker and both request forms", () => {
+    const source = readFileSync(path.join(currentDir, "App.tsx"), "utf-8");
+
+    expect(source).toContain("What can we help you with?");
+    expect(source).toContain("Edit request type");
+    expect(source).toContain("<PumpTestRigRequestForm");
+    expect(source).toContain("<ControllerSoftwareRequestForm");
+  });
+
+  it("uses the portal field labels on the pump test rig form", () => {
+    const source = readFileSync(path.join(currentDir, "App.tsx"), "utf-8");
+
+    expect(source).toContain("Raise this request on behalf of");
+    expect(source).toContain('htmlFor="pump-requester"');
+    expect(source).not.toContain('<span className="request-label">Requester *</span>');
+  });
 });

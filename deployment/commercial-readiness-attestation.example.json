@@ -1,0 +1,42 @@
+{
+  "application": "sem-sw-ticket-system",
+  "environment": "<production-or-staging-environment-name>",
+  "deploymentUrl": "https://sem-sw-ticket-system.example.internal",
+  "releaseVersion": "<release-version-or-git-sha>",
+  "attestedAt": "<ISO-8601 timestamp>",
+  "attestedBy": "<operator-or-release-owner>",
+  "checks": {
+    "runtimeHost": {
+      "status": "pass",
+      "evidence": "<host name, container image digest, service ID, or deployment record>"
+    },
+    "tlsReverseProxy": {
+      "status": "pass",
+      "evidence": "<TLS certificate, reverse proxy route, or ingress record>"
+    },
+    "nonDefaultSecrets": {
+      "status": "pass",
+      "evidence": "<secret manager path or deployment variable review record>"
+    },
+    "databasePermissions": {
+      "status": "pass",
+      "evidence": "<database path, service identity, and permission check record>"
+    },
+    "backupRestoreStorage": {
+      "status": "pass",
+      "evidence": "<backup location, retention policy, and restore rehearsal record>"
+    },
+    "monitoringHealthchecks": {
+      "status": "pass",
+      "evidence": "<monitoring dashboard, alert, log, or healthcheck URL>"
+    },
+    "rollbackRunbook": {
+      "status": "pass",
+      "evidence": "<rollback runbook URL or release checklist record>"
+    },
+    "accessPolicy": {
+      "status": "pass",
+      "evidence": "<admin owner, allowed user groups, and access review record>"
+    }
+  }
+}

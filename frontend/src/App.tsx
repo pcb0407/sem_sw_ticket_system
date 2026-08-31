@@ -1,11 +1,26 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type DragEvent, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BarChart3, ClipboardList, Compass, Cpu, FlaskConical, ListChecks, Settings } from "lucide-react";
-import { Link, matchPath } from "react-router-dom";
+import {
+  BarChart3,
+  ChevronDown,
+  ClipboardList,
+  Compass,
+  Cpu,
+  FlaskConical,
+  LifeBuoy,
+  ListChecks,
+  Paperclip,
+  PencilLine,
+  Settings,
+  UserRound,
+  X,
+} from "lucide-react";
+import { Link, matchPath, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import { UserRole } from "@sem/platform-shared";
 import { EDWARDS_ICON_SRC, EDWARDS_LOGO_SRC } from "@sem/platform-frontend";
 import { PlatformAppShell } from "@sem/platform-frontend/app";
+import { useAuth } from "@sem/platform-frontend/features/auth";
 import {
   InfoCard,
   PageBody,
@@ -41,6 +56,7 @@ const ROUTE_PATHS = {
   overview: "/overview",
   dashboard: "/overview/dashboard",
   legacyDashboard: "/overview/ticket-system",
+  helpCenter: "/help-center",
   ticketRequest: "/ticket-request",
   pumpTestRigRequest: "/ticket-request/pump-test-rig-request",
   controllerSoftwareRequest: "/ticket-request/controller-software-request",
@@ -64,6 +80,12 @@ const navTree: NavTreeItem[] = [
         roles: [UserRole.User],
       },
     ],
+  },
+  {
+    id: "help-center",
+    to: ROUTE_PATHS.helpCenter,
+    label: "Help Center",
+    icon: <LifeBuoy size={16} />,
   },
   {
     id: "ticket-request",
@@ -109,6 +131,8 @@ const navTree: NavTreeItem[] = [
   },
 ];
 
+const HELP_CENTER_PORTAL_NAME = "PCCA SEM S/W";
+
 const destinationDescriptions: Record<string, string> = {
   dashboard: "Starter metrics and replacement points for a derived SEM SW application.",
   "pump-test-rig-request": "Submit and track Pump Test Rig issues with standard templates and attachments.",
@@ -144,6 +168,13 @@ function getHeaderNavBreadcrumbs({ pathname, navTrail, moreTrail }: MainLayoutHe
 
   if (matchPath({ path: ROUTE_PATHS.overview, end: true }, normalizedPathname)) {
     return [{ label: "Overview", to: ROUTE_PATHS.overview }];
+  }
+
+  if (matchPath({ path: ROUTE_PATHS.helpCenter, end: true }, normalizedPathname)) {
+    return [
+      { label: "Help Center", to: ROUTE_PATHS.helpCenter },
+      { label: HELP_CENTER_PORTAL_NAME },
+    ];
   }
 
   if (matchPath({ path: ROUTE_PATHS.ticketRequest, end: true }, normalizedPathname)) {
@@ -332,6 +363,95 @@ function RichTextEditor({ label, value, onChange, required = false, error }: Ric
   );
 }
 
+function formatFileSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function isSameFile(left: File, right: File) {
+  return left.name === right.name && left.size === right.size && left.lastModified === right.lastModified;
+}
+
+type AttachmentDropzoneProps = {
+  files: File[];
+  onChange: (files: File[]) => void;
+};
+
+function AttachmentDropzone({ files, onChange }: AttachmentDropzoneProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const appendFiles = (incoming: FileList | null) => {
+    const added = Array.from(incoming ?? []);
+    if (added.length === 0) return;
+
+    const merged = [...files];
+    for (const file of added) {
+      if (!merged.some((existing) => isSameFile(existing, file))) merged.push(file);
+    }
+    onChange(merged);
+  };
+
+  const onDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragging(false);
+    appendFiles(event.dataTransfer.files);
+  };
+
+  return (
+    <div className="request-field request-field--wide">
+      <span className="request-label" id="attachment-dropzone-label">Attachment</span>
+      <div
+        className={clsx("attachment-dropzone", isDragging && "attachment-dropzone--active")}
+        onDragOver={(event) => {
+          event.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={onDrop}
+      >
+        <Paperclip size={16} aria-hidden="true" />
+        <span>
+          Drop files to attach or{" "}
+          <button type="button" className="attachment-browse" onClick={() => inputRef.current?.click()}>
+            browse
+          </button>
+        </span>
+        <input
+          ref={inputRef}
+          type="file"
+          multiple
+          className="sr-only"
+          aria-labelledby="attachment-dropzone-label"
+          onChange={(event) => {
+            appendFiles(event.target.files);
+            event.target.value = "";
+          }}
+        />
+      </div>
+      {files.length > 0 && (
+        <ul className="attachment-list">
+          {files.map((file) => (
+            <li key={`${file.name}-${file.size}-${file.lastModified}`} className="attachment-item">
+              <span className="attachment-item__name">{file.name}</span>
+              <span className="attachment-item__size">{formatFileSize(file.size)}</span>
+              <button
+                type="button"
+                className="attachment-item__remove"
+                aria-label={`Remove ${file.name}`}
+                onClick={() => onChange(files.filter((existing) => !isSameFile(existing, file)))}
+              >
+                <X size={14} aria-hidden="true" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function optionItems(options: MasterDataOption[]) {
   return options
     .filter((option) => option.isActive)
@@ -376,6 +496,10 @@ function MasterDataStatus({ query }: { query: { isPending: boolean; isError: boo
   return null;
 }
 
+type RequestFormProps = {
+  onCancel: () => void;
+};
+
 type PumpFormState = {
   requester: string;
   title: string;
@@ -392,7 +516,7 @@ type PumpFormState = {
   stepsToReproduceHtml: string;
 };
 
-function PumpTestRigRequestPage() {
+function PumpTestRigRequestForm({ onCancel }: RequestFormProps) {
   const masterDataQuery = useQuery({
     queryKey: ["ticket-request-master-data"],
     queryFn: fetchTicketRequestMasterData,
@@ -423,6 +547,24 @@ function PumpTestRigRequestPage() {
   });
 
   const masterData = masterDataQuery.data;
+  const { user } = useAuth();
+
+  const defaultPriorityId = useMemo(
+    () => masterData?.priorities.find((option) => option.isActive && option.name.trim().toLowerCase() === "medium")?.id ?? "",
+    [masterData],
+  );
+
+  useEffect(() => {
+    if (!user) return;
+    setForm((current) =>
+      current.requester.length > 0 ? current : { ...current, requester: `${user.englishName} (${user.email})` },
+    );
+  }, [user]);
+
+  useEffect(() => {
+    if (!defaultPriorityId) return;
+    setForm((current) => (current.priorityId.length > 0 ? current : { ...current, priorityId: defaultPriorityId }));
+  }, [defaultPriorityId]);
 
   const updateForm = <K extends keyof PumpFormState>(key: K, value: PumpFormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -466,6 +608,156 @@ function PumpTestRigRequestPage() {
   };
 
   return (
+    <>
+      <MasterDataStatus query={masterDataQuery} />
+      {masterData && (
+        <form className="request-form" onSubmit={onSubmit}>
+          <p className="request-required-note">
+            Required fields are marked with an asterisk <span className="request-required">*</span>
+          </p>
+
+          <h3 className="request-section-title">Request Information</h3>
+          <div className="request-grid">
+            <div className="request-field request-field--wide">
+              <label className="request-label" htmlFor="pump-requester">
+                Raise this request on behalf of <span className="request-required">*</span>
+              </label>
+              <div className="request-user-field">
+                <UserRound size={16} className="request-user-field__icon" aria-hidden="true" />
+                <input
+                  id="pump-requester"
+                  className="form-input request-user-field__input"
+                  value={form.requester}
+                  onChange={(e) => updateForm("requester", e.target.value)}
+                  placeholder="Name (email)"
+                  required
+                />
+                {form.requester.length > 0 && (
+                  <button
+                    type="button"
+                    className="request-user-field__clear"
+                    aria-label="Clear requester"
+                    onClick={() => updateForm("requester", "")}
+                  >
+                    <X size={14} aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+            </div>
+            <label className="request-field request-field--wide">
+              <span className="request-label">Title <span className="request-required">*</span></span>
+              <input className="form-input" value={form.title} onChange={(e) => updateForm("title", e.target.value)} required />
+            </label>
+            <label className="request-field request-field--wide">
+              <span className="request-label">Priority <span className="request-required">*</span></span>
+              <select className="form-input" value={form.priorityId} onChange={(e) => updateForm("priorityId", e.target.value)} required>
+                <option value="">Select priority</option>
+                {optionItems(masterData.priorities)}
+              </select>
+            </label>
+            <label className="request-field request-field--wide">
+              <span className="request-label">Product <span className="request-required">*</span></span>
+              <select className="form-input" value={form.productId} onChange={(e) => updateForm("productId", e.target.value)} required>
+                <option value="">Select product</option>
+                {optionItems(masterData.products)}
+              </select>
+            </label>
+            <label className="request-field">
+              <span className="request-label">Request Source <span className="request-required">*</span></span>
+              <select className="form-input" value={form.requestSourceId} onChange={(e) => updateForm("requestSourceId", e.target.value)} required>
+                <option value="">Select request source</option>
+                {optionItems(masterData.requestSources)}
+              </select>
+            </label>
+            <label className="request-field">
+              <span className="request-label">Date Found</span>
+              <input type="date" className="form-input" value={form.dateFound} onChange={(e) => updateForm("dateFound", e.target.value)} />
+            </label>
+            <label className="request-field">
+              <span className="request-label">Rig Type <span className="request-required">*</span></span>
+              <select className="form-input" value={form.rigTypeId} onChange={(e) => updateForm("rigTypeId", e.target.value)} required>
+                <option value="">Select rig type</option>
+                {optionItems(masterData.rigTypes)}
+              </select>
+            </label>
+            <label className="request-field">
+              <span className="request-label">Category <span className="request-required">*</span></span>
+              <select className="form-input" value={form.categoryId} onChange={(e) => updateForm("categoryId", e.target.value)} required>
+                <option value="">Select category</option>
+                {optionItems(masterData.categories)}
+              </select>
+            </label>
+            <label className="request-field">
+              <span className="request-label">Issue Type <span className="request-required">*</span></span>
+              <select className="form-input" value={form.issueTypeId} onChange={(e) => updateForm("issueTypeId", e.target.value)} required>
+                <option value="">Select issue type</option>
+                {optionItems(masterData.issueTypes)}
+              </select>
+            </label>
+            <label className="request-field request-field--wide">
+              <span className="request-label">Issued Site <span className="request-required">*</span></span>
+              <select className="form-input" value={form.issuedSiteId} onChange={(e) => updateForm("issuedSiteId", e.target.value)} required>
+                <option value="">Select issued site</option>
+                {optionItems(masterData.issuedSites)}
+              </select>
+            </label>
+          </div>
+
+          <RichTextEditor
+            label="Description"
+            value={form.descriptionHtml}
+            onChange={(html) => updateForm("descriptionHtml", html)}
+            required
+            error={descriptionError}
+          />
+
+          <RichTextEditor
+            label="Steps to Reproduce"
+            value={form.stepsToReproduceHtml}
+            onChange={(html) => updateForm("stepsToReproduceHtml", html)}
+            required
+            error={stepsError}
+          />
+
+          <h3 className="request-section-title">Additional Information</h3>
+          <div className="request-grid">
+            <label className="request-field request-field--wide">
+              <span className="request-label">Category</span>
+              <select className="form-input" value={form.additionalCategoryId} onChange={(e) => updateForm("additionalCategoryId", e.target.value)}>
+                <option value="">Select additional category</option>
+                {optionItems(masterData.categories)}
+              </select>
+            </label>
+            <AttachmentDropzone files={files} onChange={setFiles} />
+          </div>
+
+          <div className="request-actions">
+            <button type="submit" className="btn-primary" disabled={submitMutation.isPending}>
+              {submitMutation.isPending ? "Sending..." : "Send"}
+            </button>
+            <button type="button" className="btn-secondary" disabled={submitMutation.isPending} onClick={onCancel}>
+              Cancel
+            </button>
+          </div>
+
+          {submitMutation.isSuccess && (
+            <p className="request-success">
+              Submitted: {submitMutation.data.requestId} (Jira: {submitMutation.data.jiraIssueKey ?? "pending"})
+            </p>
+          )}
+          {submitMutation.isError && (
+            <p className="request-error">Submission failed: {submitMutation.error.message}</p>
+          )}
+        </form>
+      )}
+    </>
+  );
+}
+
+function PumpTestRigRequestPage() {
+  const navigate = useNavigate();
+
+  return (
     <PageBody>
       <PageHeader
         icon={<FlaskConical size={18} />}
@@ -483,145 +775,20 @@ function PumpTestRigRequestPage() {
         icon={<ClipboardList size={16} />}
         badges={<SectionBadge tone="brand">Required Field Validation</SectionBadge>}
       >
-        <MasterDataStatus query={masterDataQuery} />
-        {masterData && (
-          <form className="request-form" onSubmit={onSubmit}>
-            <h3 className="request-section-title">Request Information</h3>
-            <div className="request-grid">
-              <label className="request-field">
-                <span className="request-label">Requester *</span>
-                <input className="form-input" value={form.requester} onChange={(e) => updateForm("requester", e.target.value)} required />
-              </label>
-              <label className="request-field">
-                <span className="request-label">Title *</span>
-                <input className="form-input" value={form.title} onChange={(e) => updateForm("title", e.target.value)} required />
-              </label>
-              <label className="request-field">
-                <span className="request-label">Priority *</span>
-                <select className="form-input" value={form.priorityId} onChange={(e) => updateForm("priorityId", e.target.value)} required>
-                  <option value="">Select priority</option>
-                  {optionItems(masterData.priorities)}
-                </select>
-              </label>
-              <label className="request-field">
-                <span className="request-label">Product *</span>
-                <select className="form-input" value={form.productId} onChange={(e) => updateForm("productId", e.target.value)} required>
-                  <option value="">Select product</option>
-                  {optionItems(masterData.products)}
-                </select>
-              </label>
-              <label className="request-field">
-                <span className="request-label">Request Source *</span>
-                <select className="form-input" value={form.requestSourceId} onChange={(e) => updateForm("requestSourceId", e.target.value)} required>
-                  <option value="">Select request source</option>
-                  {optionItems(masterData.requestSources)}
-                </select>
-              </label>
-              <label className="request-field">
-                <span className="request-label">Date Found</span>
-                <input type="date" className="form-input" value={form.dateFound} onChange={(e) => updateForm("dateFound", e.target.value)} />
-              </label>
-              <label className="request-field">
-                <span className="request-label">Rig Type *</span>
-                <select className="form-input" value={form.rigTypeId} onChange={(e) => updateForm("rigTypeId", e.target.value)} required>
-                  <option value="">Select rig type</option>
-                  {optionItems(masterData.rigTypes)}
-                </select>
-              </label>
-              <label className="request-field">
-                <span className="request-label">Category *</span>
-                <select className="form-input" value={form.categoryId} onChange={(e) => updateForm("categoryId", e.target.value)} required>
-                  <option value="">Select category</option>
-                  {optionItems(masterData.categories)}
-                </select>
-              </label>
-              <label className="request-field">
-                <span className="request-label">Issue Type *</span>
-                <select className="form-input" value={form.issueTypeId} onChange={(e) => updateForm("issueTypeId", e.target.value)} required>
-                  <option value="">Select issue type</option>
-                  {optionItems(masterData.issueTypes)}
-                </select>
-              </label>
-              <label className="request-field">
-                <span className="request-label">Issued Site *</span>
-                <select className="form-input" value={form.issuedSiteId} onChange={(e) => updateForm("issuedSiteId", e.target.value)} required>
-                  <option value="">Select issued site</option>
-                  {optionItems(masterData.issuedSites)}
-                </select>
-              </label>
-            </div>
+        <div className="request-type-card">
+          <span className="request-type-card__icon">
+            <FlaskConical size={18} aria-hidden="true" />
+          </span>
+          <div className="request-type-card__body">
+            <p className="request-type-card__eyebrow">What can we help you with?</p>
+            <h3 className="request-type-card__title">Pump Test Rig Request</h3>
+          </div>
+          <Link to={ROUTE_PATHS.ticketRequest} className="btn-secondary request-type-card__action">
+            Change request type
+          </Link>
+        </div>
 
-            <RichTextEditor
-              label="Description"
-              value={form.descriptionHtml}
-              onChange={(html) => updateForm("descriptionHtml", html)}
-              required
-              error={descriptionError}
-            />
-
-            <RichTextEditor
-              label="Steps to Reproduce"
-              value={form.stepsToReproduceHtml}
-              onChange={(html) => updateForm("stepsToReproduceHtml", html)}
-              required
-              error={stepsError}
-            />
-
-            <h3 className="request-section-title">Additional Information</h3>
-            <div className="request-grid">
-              <label className="request-field">
-                <span className="request-label">Category</span>
-                <select className="form-input" value={form.additionalCategoryId} onChange={(e) => updateForm("additionalCategoryId", e.target.value)}>
-                  <option value="">Select additional category</option>
-                  {optionItems(masterData.categories)}
-                </select>
-              </label>
-              <label className="request-field">
-                <span className="request-label">Attachment</span>
-                <input
-                  type="file"
-                  className="form-input"
-                  multiple
-                  onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
-                />
-              </label>
-            </div>
-
-            <table className="request-summary-table mt-4">
-              <thead>
-                <tr>
-                  <th>Field</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th>Attached Files</th>
-                  <td>{files.length > 0 ? files.map((file) => file.name).join(", ") : "None"}</td>
-                </tr>
-                <tr>
-                  <th>Integration Readiness</th>
-                  <td>Jira abstraction implemented. Master data from backend seed API.</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div className="request-actions">
-              <button type="submit" className="btn-primary" disabled={submitMutation.isPending}>
-                {submitMutation.isPending ? "Submitting..." : "Submit Request"}
-              </button>
-            </div>
-
-            {submitMutation.isSuccess && (
-              <p className="request-success">
-                Submitted: {submitMutation.data.requestId} (Jira: {submitMutation.data.jiraIssueKey ?? "pending"})
-              </p>
-            )}
-            {submitMutation.isError && (
-              <p className="request-error">Submission failed: {submitMutation.error.message}</p>
-            )}
-          </form>
-        )}
+        <PumpTestRigRequestForm onCancel={() => navigate(ROUTE_PATHS.ticketRequest)} />
       </PageSection>
     </PageBody>
   );
@@ -645,7 +812,7 @@ type ControllerFormState = {
   stepsToReproduceHtml: string;
 };
 
-function ControllerSoftwareRequestPage() {
+function ControllerSoftwareRequestForm({ onCancel }: RequestFormProps) {
   const masterDataQuery = useQuery({
     queryKey: ["ticket-request-master-data"],
     queryFn: fetchTicketRequestMasterData,
@@ -677,6 +844,24 @@ function ControllerSoftwareRequestPage() {
   });
 
   const masterData = masterDataQuery.data;
+  const { user } = useAuth();
+
+  const defaultPriorityId = useMemo(
+    () => masterData?.priorities.find((option) => option.isActive && option.name.trim().toLowerCase() === "medium")?.id ?? "",
+    [masterData],
+  );
+
+  useEffect(() => {
+    if (!user) return;
+    setForm((current) =>
+      current.requester.length > 0 ? current : { ...current, requester: `${user.englishName} (${user.email})` },
+    );
+  }, [user]);
+
+  useEffect(() => {
+    if (!defaultPriorityId) return;
+    setForm((current) => (current.priorityId.length > 0 ? current : { ...current, priorityId: defaultPriorityId }));
+  }, [defaultPriorityId]);
 
   const updateForm = <K extends keyof ControllerFormState>(key: K, value: ControllerFormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -722,6 +907,173 @@ function ControllerSoftwareRequestPage() {
   };
 
   return (
+    <>
+      <MasterDataStatus query={masterDataQuery} />
+      {masterData && (
+        <form className="request-form" onSubmit={onSubmit}>
+          <p className="request-required-note">
+            Required fields are marked with an asterisk <span className="request-required">*</span>
+          </p>
+
+          <h3 className="request-section-title">Request Information</h3>
+          <div className="request-grid">
+            <div className="request-field request-field--wide">
+              <label className="request-label" htmlFor="controller-requester">
+                Raise this request on behalf of <span className="request-required">*</span>
+              </label>
+              <div className="request-user-field">
+                <UserRound size={16} className="request-user-field__icon" aria-hidden="true" />
+                <input
+                  id="controller-requester"
+                  className="form-input request-user-field__input"
+                  value={form.requester}
+                  onChange={(e) => updateForm("requester", e.target.value)}
+                  placeholder="Name (email)"
+                  required
+                />
+                {form.requester.length > 0 && (
+                  <button
+                    type="button"
+                    className="request-user-field__clear"
+                    aria-label="Clear requester"
+                    onClick={() => updateForm("requester", "")}
+                  >
+                    <X size={14} aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+            </div>
+            <label className="request-field request-field--wide">
+              <span className="request-label">Title <span className="request-required">*</span></span>
+              <input className="form-input" value={form.title} onChange={(e) => updateForm("title", e.target.value)} required />
+            </label>
+            <label className="request-field request-field--wide">
+              <span className="request-label">Priority <span className="request-required">*</span></span>
+              <select className="form-input" value={form.priorityId} onChange={(e) => updateForm("priorityId", e.target.value)} required>
+                <option value="">Select priority</option>
+                {optionItems(masterData.priorities)}
+              </select>
+            </label>
+            <label className="request-field request-field--wide">
+              <span className="request-label">Product <span className="request-required">*</span></span>
+              <select className="form-input" value={form.productId} onChange={(e) => updateForm("productId", e.target.value)} required>
+                <option value="">Select product</option>
+                {optionItems(masterData.products)}
+              </select>
+            </label>
+            <label className="request-field request-field--wide">
+              <span className="request-label">Controller Type <span className="request-required">*</span></span>
+              <select className="form-input" value={form.controllerTypeId} onChange={(e) => updateForm("controllerTypeId", e.target.value)} required>
+                <option value="">Select controller type</option>
+                {optionItems(masterData.controllerTypes)}
+              </select>
+            </label>
+            <label className="request-field">
+              <span className="request-label">Request Source <span className="request-required">*</span></span>
+              <select className="form-input" value={form.requestSourceId} onChange={(e) => updateForm("requestSourceId", e.target.value)} required>
+                <option value="">Select request source</option>
+                {optionItems(masterData.requestSources)}
+              </select>
+            </label>
+            <label className="request-field">
+              <span className="request-label">Date Found</span>
+              <input type="date" className="form-input" value={form.dateFound} onChange={(e) => updateForm("dateFound", e.target.value)} />
+            </label>
+            <label className="request-field request-field--wide">
+              <span className="request-label">Category <span className="request-required">*</span></span>
+              <select className="form-input" value={form.categoryId} onChange={(e) => updateForm("categoryId", e.target.value)} required>
+                <option value="">Select category</option>
+                {optionItems(masterData.categories)}
+              </select>
+            </label>
+          </div>
+
+          <h3 className="request-section-title">Software Version Information</h3>
+          <div className="request-grid">
+            <label className="request-field">
+              <span className="request-label">Main Version (D37XXXXXX) <span className="request-required">*</span></span>
+              <select className="form-input" value={form.mainVersionId} onChange={(e) => updateForm("mainVersionId", e.target.value)} required>
+                <option value="">Select main version</option>
+                {optionItems(masterData.softwareMainVersions)}
+              </select>
+            </label>
+            <label className="request-field">
+              <span className="request-label">Sub Version (A~Z) <span className="request-required">*</span></span>
+              <span className="request-hint">If selected other in the Main version, select other.</span>
+              <select className="form-input" value={form.subVersionId} onChange={(e) => updateForm("subVersionId", e.target.value)} required>
+                <option value="">Select sub version</option>
+                {optionItems(masterData.softwareSubVersions)}
+              </select>
+            </label>
+            {form.mainVersionId === "main-other" && (
+              <label className="request-field">
+                <span className="request-label">Main Version (Other) <span className="request-required">*</span></span>
+                <input className="form-input" value={form.mainVersionOther} onChange={(e) => updateForm("mainVersionOther", e.target.value)} required />
+              </label>
+            )}
+            {form.subVersionId === "sub-other" && (
+              <label className="request-field">
+                <span className="request-label">Sub Version (Other) <span className="request-required">*</span></span>
+                <input className="form-input" value={form.subVersionOther} onChange={(e) => updateForm("subVersionOther", e.target.value)} required />
+              </label>
+            )}
+          </div>
+
+          <RichTextEditor
+            label="Description"
+            value={form.descriptionHtml}
+            onChange={(html) => updateForm("descriptionHtml", html)}
+            required
+            error={descriptionError}
+          />
+
+          <RichTextEditor
+            label="Steps to Reproduce"
+            value={form.stepsToReproduceHtml}
+            onChange={(html) => updateForm("stepsToReproduceHtml", html)}
+            required
+            error={stepsError}
+          />
+
+          <h3 className="request-section-title">Additional Information</h3>
+          <div className="request-grid">
+            <label className="request-field request-field--wide">
+              <span className="request-label">Category</span>
+              <select className="form-input" value={form.additionalCategoryId} onChange={(e) => updateForm("additionalCategoryId", e.target.value)}>
+                <option value="">Select additional category</option>
+                {optionItems(masterData.categories)}
+              </select>
+            </label>
+            <AttachmentDropzone files={files} onChange={setFiles} />
+          </div>
+
+          <div className="request-actions">
+            <button type="submit" className="btn-primary" disabled={submitMutation.isPending}>
+              {submitMutation.isPending ? "Sending..." : "Send"}
+            </button>
+            <button type="button" className="btn-secondary" disabled={submitMutation.isPending} onClick={onCancel}>
+              Cancel
+            </button>
+          </div>
+
+          {submitMutation.isSuccess && (
+            <p className="request-success">
+              Submitted: {submitMutation.data.requestId} (Jira: {submitMutation.data.jiraIssueKey ?? "pending"})
+            </p>
+          )}
+          {submitMutation.isError && (
+            <p className="request-error">Submission failed: {submitMutation.error.message}</p>
+          )}
+        </form>
+      )}
+    </>
+  );
+}
+
+function ControllerSoftwareRequestPage() {
+  const navigate = useNavigate();
+
+  return (
     <PageBody>
       <PageHeader
         icon={<Cpu size={18} />}
@@ -739,162 +1091,20 @@ function ControllerSoftwareRequestPage() {
         icon={<ClipboardList size={16} />}
         badges={<SectionBadge tone="brand">Rich Text + Attachment</SectionBadge>}
       >
-        <MasterDataStatus query={masterDataQuery} />
-        {masterData && (
-          <form className="request-form" onSubmit={onSubmit}>
-            <h3 className="request-section-title">Request Information</h3>
-            <div className="request-grid">
-              <label className="request-field">
-                <span className="request-label">Requester *</span>
-                <input className="form-input" value={form.requester} onChange={(e) => updateForm("requester", e.target.value)} required />
-              </label>
-              <label className="request-field">
-                <span className="request-label">Title *</span>
-                <input className="form-input" value={form.title} onChange={(e) => updateForm("title", e.target.value)} required />
-              </label>
-              <label className="request-field">
-                <span className="request-label">Priority *</span>
-                <select className="form-input" value={form.priorityId} onChange={(e) => updateForm("priorityId", e.target.value)} required>
-                  <option value="">Select priority</option>
-                  {optionItems(masterData.priorities)}
-                </select>
-              </label>
-              <label className="request-field">
-                <span className="request-label">Product *</span>
-                <select className="form-input" value={form.productId} onChange={(e) => updateForm("productId", e.target.value)} required>
-                  <option value="">Select product</option>
-                  {optionItems(masterData.products)}
-                </select>
-              </label>
-              <label className="request-field">
-                <span className="request-label">Controller Type *</span>
-                <select className="form-input" value={form.controllerTypeId} onChange={(e) => updateForm("controllerTypeId", e.target.value)} required>
-                  <option value="">Select controller type</option>
-                  {optionItems(masterData.controllerTypes)}
-                </select>
-              </label>
-              <label className="request-field">
-                <span className="request-label">Request Source *</span>
-                <select className="form-input" value={form.requestSourceId} onChange={(e) => updateForm("requestSourceId", e.target.value)} required>
-                  <option value="">Select request source</option>
-                  {optionItems(masterData.requestSources)}
-                </select>
-              </label>
-              <label className="request-field">
-                <span className="request-label">Category *</span>
-                <select className="form-input" value={form.categoryId} onChange={(e) => updateForm("categoryId", e.target.value)} required>
-                  <option value="">Select category</option>
-                  {optionItems(masterData.categories)}
-                </select>
-              </label>
-              <label className="request-field">
-                <span className="request-label">Date Found</span>
-                <input type="date" className="form-input" value={form.dateFound} onChange={(e) => updateForm("dateFound", e.target.value)} />
-              </label>
-            </div>
+        <div className="request-type-card">
+          <span className="request-type-card__icon">
+            <Cpu size={18} aria-hidden="true" />
+          </span>
+          <div className="request-type-card__body">
+            <p className="request-type-card__eyebrow">What can we help you with?</p>
+            <h3 className="request-type-card__title">Controller Software Request</h3>
+          </div>
+          <Link to={ROUTE_PATHS.ticketRequest} className="btn-secondary request-type-card__action">
+            Change request type
+          </Link>
+        </div>
 
-            <h3 className="request-section-title">Software Version Information</h3>
-            <div className="request-grid">
-              <label className="request-field">
-                <span className="request-label">Main Version (D37XXXXXX) *</span>
-                <select className="form-input" value={form.mainVersionId} onChange={(e) => updateForm("mainVersionId", e.target.value)} required>
-                  <option value="">Select main version</option>
-                  {optionItems(masterData.softwareMainVersions)}
-                </select>
-              </label>
-              {form.mainVersionId === "main-other" && (
-                <label className="request-field">
-                  <span className="request-label">Main Version (Other) *</span>
-                  <input className="form-input" value={form.mainVersionOther} onChange={(e) => updateForm("mainVersionOther", e.target.value)} required />
-                </label>
-              )}
-
-              <label className="request-field">
-                <span className="request-label">Sub Version (A~Z) *</span>
-                <select className="form-input" value={form.subVersionId} onChange={(e) => updateForm("subVersionId", e.target.value)} required>
-                  <option value="">Select sub version</option>
-                  {optionItems(masterData.softwareSubVersions)}
-                </select>
-              </label>
-              {form.subVersionId === "sub-other" && (
-                <label className="request-field">
-                  <span className="request-label">Sub Version (Other) *</span>
-                  <input className="form-input" value={form.subVersionOther} onChange={(e) => updateForm("subVersionOther", e.target.value)} required />
-                </label>
-              )}
-            </div>
-
-            <RichTextEditor
-              label="Description"
-              value={form.descriptionHtml}
-              onChange={(html) => updateForm("descriptionHtml", html)}
-              required
-              error={descriptionError}
-            />
-
-            <RichTextEditor
-              label="Steps to Reproduce"
-              value={form.stepsToReproduceHtml}
-              onChange={(html) => updateForm("stepsToReproduceHtml", html)}
-              required
-              error={stepsError}
-            />
-
-            <h3 className="request-section-title">Additional Information</h3>
-            <div className="request-grid">
-              <label className="request-field">
-                <span className="request-label">Category</span>
-                <select className="form-input" value={form.additionalCategoryId} onChange={(e) => updateForm("additionalCategoryId", e.target.value)}>
-                  <option value="">Select additional category</option>
-                  {optionItems(masterData.categories)}
-                </select>
-              </label>
-              <label className="request-field">
-                <span className="request-label">Attachment</span>
-                <input
-                  type="file"
-                  className="form-input"
-                  multiple
-                  onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
-                />
-              </label>
-            </div>
-
-            <table className="request-summary-table mt-4">
-              <thead>
-                <tr>
-                  <th>Field</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th>Attached Files</th>
-                  <td>{files.length > 0 ? files.map((file) => file.name).join(", ") : "None"}</td>
-                </tr>
-                <tr>
-                  <th>Version Override</th>
-                  <td>{form.mainVersionId === "main-other" || form.subVersionId === "sub-other" ? "Custom input enabled" : "Not used"}</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div className="request-actions">
-              <button type="submit" className="btn-primary" disabled={submitMutation.isPending}>
-                {submitMutation.isPending ? "Submitting..." : "Submit Request"}
-              </button>
-            </div>
-
-            {submitMutation.isSuccess && (
-              <p className="request-success">
-                Submitted: {submitMutation.data.requestId} (Jira: {submitMutation.data.jiraIssueKey ?? "pending"})
-              </p>
-            )}
-            {submitMutation.isError && (
-              <p className="request-error">Submission failed: {submitMutation.error.message}</p>
-            )}
-          </form>
-        )}
+        <ControllerSoftwareRequestForm onCancel={() => navigate(ROUTE_PATHS.ticketRequest)} />
       </PageSection>
     </PageBody>
   );
@@ -1261,6 +1471,116 @@ function TicketRequestHubPage() {
   );
 }
 
+const HELP_CENTER_REQUEST_TYPES = [
+  {
+    id: "pump-test-rig",
+    label: "Pump Test Rig Request",
+    description: "Report pump test rig issues with rig type, issued site, and reproduction evidence.",
+    icon: <FlaskConical size={18} aria-hidden="true" />,
+  },
+  {
+    id: "controller-software",
+    label: "Controller Software Request",
+    description: "Raise controller software issues including main and sub version details.",
+    icon: <Cpu size={18} aria-hidden="true" />,
+  },
+] as const;
+
+type HelpCenterRequestTypeId = (typeof HELP_CENTER_REQUEST_TYPES)[number]["id"];
+
+function HelpCenterPage() {
+  const [requestTypeId, setRequestTypeId] = useState<HelpCenterRequestTypeId>("pump-test-rig");
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  // Bumping the instance remounts the active form, which is how Cancel clears entered values.
+  const [formInstance, setFormInstance] = useState(0);
+
+  const selectedType = HELP_CENTER_REQUEST_TYPES.find((type) => type.id === requestTypeId) ?? HELP_CENTER_REQUEST_TYPES[0];
+  const visibleTypes = HELP_CENTER_REQUEST_TYPES.filter((type) => isPickerOpen || type.id === requestTypeId);
+
+  const selectRequestType = (nextId: HelpCenterRequestTypeId) => {
+    if (nextId !== requestTypeId) setFormInstance((instance) => instance + 1);
+    setRequestTypeId(nextId);
+    setIsPickerOpen(false);
+  };
+
+  const resetForm = () => {
+    setFormInstance((instance) => instance + 1);
+    setIsPickerOpen(false);
+  };
+
+  return (
+    <PageBody>
+      <PageHeader
+        icon={<LifeBuoy size={18} />}
+        title={HELP_CENTER_PORTAL_NAME}
+        badges={
+          <>
+            <PageHeaderBadge>Help Center</PageHeaderBadge>
+            <PageHeaderBadge>Self Service Portal</PageHeaderBadge>
+          </>
+        }
+      />
+
+      <PageSection
+        title="Raise a request"
+        icon={<ClipboardList size={16} />}
+        badges={<SectionBadge tone="brand">{HELP_CENTER_REQUEST_TYPES.length} request types</SectionBadge>}
+      >
+        <p className="portal-intro">
+          Welcome! You can raise a request for {HELP_CENTER_PORTAL_NAME} using the options provided.
+        </p>
+
+        <div className="portal-picker">
+          <div className="portal-picker__header">
+            <span className="portal-picker__label" id="help-center-picker-label">What can we help you with?</span>
+            <button
+              type="button"
+              className="btn-secondary portal-picker__toggle"
+              aria-expanded={isPickerOpen}
+              aria-controls="help-center-request-types"
+              onClick={() => setIsPickerOpen((open) => !open)}
+            >
+              <PencilLine size={14} aria-hidden="true" />
+              Edit request type
+            </button>
+          </div>
+
+          <ul id="help-center-request-types" className="portal-picker__list" aria-labelledby="help-center-picker-label">
+            {visibleTypes.map((type) => (
+              <li key={type.id}>
+                <button
+                  type="button"
+                  className={clsx(
+                    "request-type-card request-type-card--option",
+                    type.id === requestTypeId && "request-type-card--selected",
+                  )}
+                  aria-pressed={type.id === requestTypeId}
+                  aria-expanded={isPickerOpen ? undefined : false}
+                  aria-controls={isPickerOpen ? undefined : "help-center-request-types"}
+                  onClick={() => (isPickerOpen ? selectRequestType(type.id) : setIsPickerOpen(true))}
+                >
+                  <span className="request-type-card__icon">{type.icon}</span>
+                  <span className="request-type-card__body">
+                    <span className="request-type-card__title">{type.label}</span>
+                    <span className="request-type-card__eyebrow">{type.description}</span>
+                  </span>
+                  {!isPickerOpen && <ChevronDown size={16} aria-hidden="true" />}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {selectedType.id === "pump-test-rig" ? (
+          <PumpTestRigRequestForm key={`pump-${formInstance}`} onCancel={resetForm} />
+        ) : (
+          <ControllerSoftwareRequestForm key={`controller-${formInstance}`} onCancel={resetForm} />
+        )}
+      </PageSection>
+    </PageBody>
+  );
+}
+
 export function App() {
   return (
     <PlatformAppShell
@@ -1283,6 +1603,7 @@ export function App() {
         { path: ROUTE_PATHS.overview, element: <OverviewPage /> },
         { path: ROUTE_PATHS.dashboard, element: <DashboardPage /> },
         { path: ROUTE_PATHS.legacyDashboard, element: <DashboardPage /> },
+        { path: ROUTE_PATHS.helpCenter, element: <HelpCenterPage /> },
         { path: ROUTE_PATHS.ticketRequest, element: <TicketRequestHubPage /> },
         { path: ROUTE_PATHS.pumpTestRigRequest, element: <PumpTestRigRequestPage /> },
         { path: ROUTE_PATHS.controllerSoftwareRequest, element: <ControllerSoftwareRequestPage /> },

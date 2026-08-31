@@ -65,8 +65,9 @@ npm run platform:adopt
 | `npm run dev` | Build shared, then run backend and frontend together |
 | `npm run build` | Build shared, backend, and frontend |
 | `npm run test` | Run workspace tests when present |
-| `npm run verify` | Run tests, then the full build |
+| `npm run verify` | Run the standardization gate, then tests, then the full build |
 | `npm run verify:release` | Run `verify`, then enforce release-oriented frontend budget checks |
+| `npm run check:standardization` | Verify this repository against the canonical baseline owned by `common-platform` |
 | `npm run smoke` | Check a running local frontend/backend pair |
 | `npm run smoke:deployment` | Check deployed frontend/backend URLs from explicit smoke env vars |
 | `npm run budget:frontend` | Enforce frontend JS/CSS production bundle budgets after build |
@@ -78,6 +79,19 @@ npm run platform:adopt
 | `npm run check:test-evidence` | Detect incomplete release-candidate test evidence records |
 | `npm run check:launch-readiness` | Detect incomplete final commercial launch approval evidence |
 | `npm run prepare:https` | Generate local HTTPS assets when the workflow needs them |
+
+## Standardization gate
+
+`npm run check:standardization` compares this repository against the canonical baseline in
+`common-platform/scripts/standardization-baseline.json`, and is chained into `npm run verify`.
+
+When it reports drift, fix the canonical source first, never this repository alone:
+
+1. Update `sem_sw_common_web_platform/standards/app/` and `scripts/standardization-baseline.json`.
+2. Propagate configuration drift with `node common-platform/scripts/check-standardization.cjs --repo . --fix`.
+3. Missing npm scripts, missing files, and `AGENTS.md` gaps must be fixed by hand.
+
+See `common-platform/docs/standardization.md` for the full rule list.
 
 ## Local smoke checks
 
