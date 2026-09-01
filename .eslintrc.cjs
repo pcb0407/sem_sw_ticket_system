@@ -13,6 +13,7 @@ module.exports = {
   ignorePatterns: ["dist/", "node_modules/", "*.config.js", "*.config.cjs"],
   rules: {
     "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/triple-slash-reference": "off",
     "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
   },
   overrides: [
