@@ -365,6 +365,7 @@ The VS Code Run/Debug prelaunch chain for this workspace is shared across:
 
 - bundle_sw_release_dashboard
 - pump_sw_ec_tracker
+- pump_sw_release_note
 - pump_sw_requirement_spec
 - sem_sw_service_portal
 - sem_sw_ticket_system
