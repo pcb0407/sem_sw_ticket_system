@@ -1,0 +1,25 @@
+name: Windows Architecture Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-architecture-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-windows:
+    uses: pcb0407/sem_sw_common_web_platform/.github/workflows/reusable-windows-architecture.yml@main
+    with:
+      node_version: 20.19.6
+      platform_repository: ${{ vars.SEM_PLATFORM_REPOSITORY || 'pcb0407/sem_sw_common_web_platform' }}
+      platform_ref: ${{ vars.SEM_PLATFORM_REF || 'main' }}
+    secrets:
+      SEM_PLATFORM_DEPLOY_KEY: ${{ secrets.SEM_PLATFORM_DEPLOY_KEY }}

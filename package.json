@@ -1,8 +1,8 @@
 {
-  "name": "sem-sw-web-template",
+  "name": "sem-sw-ticket-system",
   "version": "0.1.0",
   "private": true,
-  "description": "SEM SW Web Template - starter application template built on the SEM SW common web platform.",
+  "description": "SEM SW Ticket System - service request and ticketing application built on the SEM SW common web platform.",
   "sem": {
     "productDocPrefix": "sem-sw-ticket-system"
   },

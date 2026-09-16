@@ -1,0 +1,39 @@
+# Canonical dependency update policy for SEM SW application repositories.
+# Managed by sem_sw_common_web_platform/standards/app/github-dependabot.yml.
+# Supports CRA dependency traceability and vulnerability remediation objectives.
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directories:
+      - "/"
+      - "/backend"
+      - "/frontend"
+      - "/shared"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    groups:
+      production-patches:
+        dependency-type: production
+        update-types:
+          - patch
+      development-minor-and-patch:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # Node 20 LTS is pinned by package.json engines and the apphost managed runtime.
+      - dependency-name: "@types/node"
+        update-types:
+          - version-update:semver-major
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
