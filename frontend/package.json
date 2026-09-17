@@ -8,7 +8,7 @@
     "dev": "node ../scripts/invoke-workspace-node.cjs ./node_modules/vite/bin/vite.js",
     "build": "node ../scripts/invoke-workspace-node.cjs ../node_modules/typescript/lib/tsc.js --build --pretty false && node ../scripts/invoke-workspace-node.cjs ./node_modules/vite/bin/vite.js build --emptyOutDir=false",
     "test": "node ../scripts/invoke-workspace-node.cjs ../node_modules/vitest/vitest.mjs run --config vitest.config.ts",
-    "lint": "node ../scripts/invoke-workspace-node.cjs ../node_modules/eslint/bin/eslint.js \"src/**/*.ts\" \"src/**/*.tsx\" \"test/**/*.ts\" \"test/**/*.tsx\" vite.config.ts --config ../.eslintrc.cjs --max-warnings 0"
+    "lint": "node ../scripts/invoke-workspace-node.cjs ../node_modules/eslint/bin/eslint.js \"src/**/*.ts\" \"src/**/*.tsx\" \"test/**/*.ts\" \"test/**/*.tsx\" vite.config.ts --config ../.eslintrc.cjs --no-error-on-unmatched-pattern --max-warnings 0"
   },
   "dependencies": {
     "@ticket-system/shared": "file:../shared",

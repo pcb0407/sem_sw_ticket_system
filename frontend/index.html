@@ -3,6 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- sem:appearance-boot:start -->
+    <script>
+      // Deterministic pre-paint appearance. The server settings DB stays authoritative after hydration;
+      // the OS colour-scheme media query must never be used because it resolves per browser profile.
+      (function () {
+        var mode = "light";
+        try {
+          var stored = localStorage.getItem("sem.color-mode");
+          if (stored === "dark" || stored === "light") mode = stored;
+        } catch (error) {
+          mode = "light";
+        }
+        document.documentElement.classList.toggle("dark", mode === "dark");
+        document.documentElement.style.colorScheme = mode;
+      })();
+    </script>
+    <!-- sem:appearance-boot:end -->
     <title>SEM SW Ticket System</title>
   </head>
   <body>

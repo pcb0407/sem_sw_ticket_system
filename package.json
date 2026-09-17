@@ -46,7 +46,7 @@
     "submodule:update": "git submodule update --init --recursive --remote",
     "prepare:https": "node scripts/invoke-workspace-node.cjs scripts/ensure-dev-https-cert.cjs",
     "lint": "node scripts/invoke-workspace-node.cjs --npm run lint --workspace shared && node scripts/invoke-workspace-node.cjs --npm run lint --workspace backend && node scripts/invoke-workspace-node.cjs --npm run lint --workspace frontend",
-    "doctor:apphost-node-architecture": "node common-platform/scripts/verify-apphost-node-architecture.cjs ."
+    "doctor:apphost-node-architecture": "node scripts/invoke-workspace-node.cjs common-platform/scripts/verify-apphost-node-architecture.cjs ."
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.59.4",

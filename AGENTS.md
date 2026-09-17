@@ -189,6 +189,26 @@ When duplicate UI patterns are found, recommend component consolidation.
 
 ---
 
+# Appearance Standard
+
+The colour scheme is application data owned by the settings database, not a client preference.
+
+- The stored preference returned by `GET /auth/me` is authoritative. When it is unset, every client
+  falls back to the same deterministic default (`light`), never to a locally resolved value.
+- `prefers-color-scheme` must not appear in `frontend/index.html` or `frontend/src`. It resolves per
+  browser profile, so parallel debug windows rendered the same account light and dark at once.
+- `sem.color-mode` is the only colour-mode storage key, and it is a same-profile paint cache only.
+- Only user-initiated changes may be written back to the server. Persisting a locally derived default
+  makes parallel windows overwrite each other's preference.
+- The pre-paint boot block between `<!-- sem:appearance-boot:start -->` and
+  `<!-- sem:appearance-boot:end -->` in `frontend/index.html` is canonical and owned by
+  `sem_sw_web_template`.
+
+Enforced by the `appearance-boot`, `appearance-determinism` and `appearance-storage-key` rules in
+`common-platform/scripts/check-standardization.cjs`.
+
+---
+
 # Performance Requirements
 
 Evaluate:

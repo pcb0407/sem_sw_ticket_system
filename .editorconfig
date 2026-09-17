@@ -1,5 +1,5 @@
 # Canonical editor configuration for SEM SW application repositories.
-# Managed by sem_sw_common_web_platform/standards/app/editorconfig.
+# Managed by sem_sw_web_template/.editorconfig; enforced by common-platform/scripts/check-standardization.cjs.
 root = true
 
 [*]

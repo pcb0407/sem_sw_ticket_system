@@ -87,7 +87,8 @@ npm run platform:adopt
 
 When it reports drift, fix the canonical source first, never this repository alone:
 
-1. Update `sem_sw_common_web_platform/standards/app/` and `scripts/standardization-baseline.json`.
+1. Update the canonical files in `sem_sw_web_template` and, if the rule itself changes,
+   `sem_sw_common_web_platform/scripts/standardization-baseline.json`.
 2. Propagate configuration drift with `node common-platform/scripts/check-standardization.cjs --repo . --fix`.
 3. Missing npm scripts, missing files, and `AGENTS.md` gaps must be fixed by hand.
 

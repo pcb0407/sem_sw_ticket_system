@@ -1,5 +1,5 @@
 # Canonical dependency update policy for SEM SW application repositories.
-# Managed by sem_sw_common_web_platform/standards/app/github-dependabot.yml.
+# Managed by sem_sw_web_template/.github/dependabot.yml; enforced by common-platform/scripts/check-standardization.cjs.
 # Supports CRA dependency traceability and vulnerability remediation objectives.
 version: 2
 
