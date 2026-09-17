@@ -4,7 +4,8 @@
   "private": true,
   "description": "SEM SW Ticket System - service request and ticketing application built on the SEM SW common web platform.",
   "sem": {
-    "productDocPrefix": "sem-sw-ticket-system"
+    "productDocPrefix": "sem-sw-ticket-system",
+    "nativeDependencies": ["sqlite3"]
   },
   "workspaces": [
     "shared",

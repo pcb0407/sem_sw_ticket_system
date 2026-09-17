@@ -689,7 +689,7 @@
     {
       "label": "apphost:wait-fullstack-debug-ready",
       "type": "shell",
-      "command": "& '${workspaceFolder}/.vscode/scripts/wait-fullstack-debug-ready.ps1'",
+      "command": "& '${workspaceFolder}/.vscode/scripts/wait-fullstack-debug-ready.ps1' -TimeoutSeconds ${config:pump.apphost.fullstackDebugReadyTimeoutSeconds}",
       "options": {
         "shell": {
           "executable": "powershell.exe",
@@ -711,7 +711,7 @@
     {
       "label": "apphost:ensure-fullstack-debug-ready",
       "type": "shell",
-      "command": "& '${workspaceFolder}/.vscode/scripts/apphost-prelaunch-fullstack-debug.ps1'; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; & '${workspaceFolder}/.vscode/scripts/wait-fullstack-debug-ready.ps1'",
+      "command": "& '${workspaceFolder}/.vscode/scripts/apphost-prelaunch-fullstack-debug.ps1'; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; & '${workspaceFolder}/.vscode/scripts/wait-fullstack-debug-ready.ps1' -TimeoutSeconds ${config:pump.apphost.fullstackDebugReadyTimeoutSeconds}",
       "options": {
         "shell": {
           "executable": "powershell.exe",

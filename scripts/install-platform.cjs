@@ -7,7 +7,7 @@
 // each package hasn't changed since the last successful build.
 
 const { execFileSync } = require("node:child_process");
-const { cpSync, existsSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync, mkdirSync, readdirSync, statSync, renameSync } = require("node:fs");
+const { cpSync, existsSync, lstatSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync, mkdirSync, readdirSync, statSync, renameSync } = require("node:fs");
 const { join, relative, resolve } = require("node:path");
 const { createHash } = require("node:crypto");
 const { ensurePlatformRoot } = require("./ensure-platform-root.cjs");
@@ -175,6 +175,14 @@ function removePathWithRetry(targetPath) {
 
   while (true) {
     try {
+      // A recursive delete follows a Windows junction and wipes the linked directory,
+      // so a reparse point must have only its link entry removed.
+      const linkStats = lstatSync(targetPath, { throwIfNoEntry: false });
+      if (linkStats?.isSymbolicLink()) {
+        rmSync(targetPath, { recursive: false, force: true, maxRetries: 10, retryDelay: 100 });
+        return;
+      }
+
       rmSync(targetPath, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
       return;
     } catch (error) {
@@ -278,7 +286,14 @@ function ensureRepoNodeModulesJunction() {
     return;
   }
 
-  ensureJunction(join(repoRoot, "node_modules"), targetPath);
+  const linkPath = join(repoRoot, "node_modules");
+  const linkStats = lstatSync(linkPath, { throwIfNoEntry: false });
+  if (linkStats && !linkStats.isSymbolicLink()) {
+    // A physical node_modules directory is owned by npm; never replace it with a junction.
+    return;
+  }
+
+  ensureJunction(linkPath, targetPath);
 }
 
 function ensureAppNodeModuleLink(packageName, packageRoot) {

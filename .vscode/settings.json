@@ -32,7 +32,7 @@
     },
     "css.lint.unknownAtRules": "ignore",
     "workbench.browser.enableChatTools":  true,
-    "pump.apphost.fullstackDebugReadyTimeoutSeconds": 0,
+    "pump.apphost.fullstackDebugReadyTimeoutSeconds": 300,
     "pump.apphost.backendDebugPort": 9231,
     "pump.apphost.browserDesktopDeviceScaleFactor": 1,
     "pump.apphost.browserDesktopWindowSize": "1440,1024",
