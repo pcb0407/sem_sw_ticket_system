@@ -193,19 +193,39 @@ When duplicate UI patterns are found, recommend component consolidation.
 
 The colour scheme is application data owned by the settings database, not a client preference.
 
+## Authenticated screens
+
 - The stored preference returned by `GET /auth/me` is authoritative. When it is unset, every client
   falls back to the same deterministic default (`light`), never to a locally resolved value.
+- Only user-initiated changes may be written back to the server. Persisting a locally derived default
+  makes parallel windows overwrite each other's preference.
+
+## Loading screen and login screen
+
+Neither screen has an authenticated user, so no server preference exists to read.
+
+- The boot appearance is the cached preference in `sem.color-mode`. The deterministic default
+  (`light`) applies only when this browser profile has no cache.
+- The login screen must render that boot appearance. It must never be reset to the default, because
+  that hides the appearance the signed-in user actually chose.
+- The wait for the server preference is bounded at 1000 ms (`APPEARANCE_BOOT_TIMEOUT_MS`). Once the
+  deadline passes the boot appearance is final; a preference arriving later is still applied.
+- Nothing may be written to `sem.color-mode` while the appearance is still booting. A slow window
+  must not overwrite a cache that another window already resolved from the server.
+- The loading screen must never be delayed in order to wait for the appearance.
+
+## Invariants
+
 - `prefers-color-scheme` must not appear in `frontend/index.html` or `frontend/src`. It resolves per
   browser profile, so parallel debug windows rendered the same account light and dark at once.
 - `sem.color-mode` is the only colour-mode storage key, and it is a same-profile paint cache only.
-- Only user-initiated changes may be written back to the server. Persisting a locally derived default
-  makes parallel windows overwrite each other's preference.
 - The pre-paint boot block between `<!-- sem:appearance-boot:start -->` and
   `<!-- sem:appearance-boot:end -->` in `frontend/index.html` is canonical and owned by
   `sem_sw_web_template`.
 
 Enforced by the `appearance-boot`, `appearance-determinism` and `appearance-storage-key` rules in
-`common-platform/scripts/check-standardization.cjs`.
+`common-platform/scripts/check-standardization.cjs`, plus the `bootTimeoutMs` and
+`unauthenticatedAppearanceSource` keys validated by `--self-check`.
 
 ---
 
