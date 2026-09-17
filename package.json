@@ -14,7 +14,7 @@
   "scripts": {
     "workspace:refresh": "node scripts/invoke-workspace-node.cjs scripts/ensure-platform-root.cjs && node scripts/invoke-workspace-node.cjs scripts/assert-local-dev-env.cjs",
     "deps:install": "node scripts/invoke-workspace-node.cjs --npm install --workspaces --include-workspace-root --no-audit --no-fund",
-    "deps:ci": "node scripts/invoke-workspace-node.cjs --npm ci --ignore-scripts --workspaces --include-workspace-root --no-audit --no-fund && node scripts/invoke-workspace-node.cjs --npm run workspace:refresh && node scripts/invoke-workspace-node.cjs --npm run postinstall",
+    "deps:ci": "node scripts/invoke-workspace-node.cjs --npm ci --ignore-scripts --workspaces --include-workspace-root --no-audit --no-fund && node scripts/invoke-workspace-node.cjs common-platform/scripts/rebuild-native-deps.cjs && node scripts/invoke-workspace-node.cjs --npm run workspace:refresh && node scripts/invoke-workspace-node.cjs --npm run postinstall",
     "preinstall": "node scripts/invoke-workspace-node.cjs scripts/ensure-platform-root.cjs && node scripts/invoke-workspace-node.cjs scripts/assert-local-dev-env.cjs",
     "postinstall": "node scripts/invoke-workspace-node.cjs scripts/install-platform.cjs && node scripts/invoke-workspace-node.cjs scripts/verify-platform-sync.cjs",
     "platform:link": "node scripts/invoke-workspace-node.cjs scripts/ensure-platform-root.cjs",
