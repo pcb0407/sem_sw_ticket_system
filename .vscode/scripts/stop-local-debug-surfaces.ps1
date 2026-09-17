@@ -8,7 +8,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 function Resolve-WorkspaceRoot {
-  foreach ($environmentName in @('SEM_APP_WORKSPACE_ROOT', 'PUMP_WORKSPACE_ROOT', 'TICKET_SYSTEM_WORKSPACE_ROOT', 'BUNDLE_WORKSPACE_ROOT', 'SEM_SW_PLATFORM_WORKSPACE_ROOT')) {
+  foreach ($environmentName in @('SEM_APP_WORKSPACE_ROOT')) {
     $workspaceRoot = [Environment]::GetEnvironmentVariable($environmentName)
     if (-not [string]::IsNullOrWhiteSpace($workspaceRoot)) {
       return [System.IO.Path]::GetFullPath($workspaceRoot)

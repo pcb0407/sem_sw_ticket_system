@@ -4,13 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 
-const workspaceRoot =
-  process.env.SEM_APP_WORKSPACE_ROOT ||
-  process.env.TICKET_SYSTEM_WORKSPACE_ROOT ||
-  process.env.PUMP_WORKSPACE_ROOT ||
-  process.env.BUNDLE_WORKSPACE_ROOT ||
-  process.env.WEB_TEMPLATE_WORKSPACE_ROOT ||
-  "";
+const workspaceRoot = process.env.SEM_APP_WORKSPACE_ROOT || process.env.INIT_CWD || "";
 
 const candidates = [
   workspaceRoot ? path.resolve(workspaceRoot, "common-platform", "scripts", "check-production-env.cjs") : "",

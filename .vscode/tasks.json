@@ -10,7 +10,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -33,7 +34,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -56,7 +58,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -78,7 +81,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -123,7 +127,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -167,7 +172,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -190,7 +196,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -234,7 +241,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -255,7 +263,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -276,7 +285,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -297,7 +307,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -327,7 +338,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -361,7 +373,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -383,7 +396,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -405,7 +419,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -426,7 +441,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -447,7 +463,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -463,12 +480,13 @@
     {
       "label": "apphost:open-swagger",
       "type": "shell",
-      "command": "& '${workspaceFolder}/.vscode/scripts/open-swagger-edge.ps1' -Protocols http -ProfileName '.edge-swagger-profile' -WindowSize '${config:pump.apphost.browserDesktopWindowSize}' -HighDpiSupport ${config:pump.apphost.browserHighDpiSupport} -DeviceScaleFactor ${config:pump.apphost.browserDesktopDeviceScaleFactor}",
+      "command": "& '${workspaceFolder}/.vscode/scripts/open-swagger-edge.ps1' -ProfileName '.edge-swagger-profile' -WindowSize '${config:pump.apphost.browserDesktopWindowSize}' -HighDpiSupport ${config:pump.apphost.browserHighDpiSupport} -DeviceScaleFactor ${config:pump.apphost.browserDesktopDeviceScaleFactor}",
       "options": {
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -489,7 +507,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -510,7 +529,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -531,7 +551,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -553,7 +574,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -585,7 +607,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -616,7 +639,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -630,6 +654,16 @@
       "problemMatcher": []
     },
     {
+      "label": "apphost:cleanup-backend-debug:docker",
+      "dependsOn": [
+        "apphost:kill-edge-debug-profile",
+        "apphost:cleanup-backend-debug",
+        "apphost:cleanup-docker-state"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
       "label": "apphost:prelaunch-fullstack-debug",
       "type": "shell",
       "command": "& '${workspaceFolder}/.vscode/scripts/apphost-prelaunch-fullstack-debug.ps1'",
@@ -637,7 +671,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -659,7 +694,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -680,7 +716,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -702,7 +739,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -801,7 +839,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -822,7 +861,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -843,7 +883,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },
@@ -864,7 +905,8 @@
         "shell": {
           "executable": "powershell.exe",
           "args": [
-            "-NoProfile", "-Command"
+            "-NoProfile",
+            "-Command"
           ]
         }
       },

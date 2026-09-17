@@ -29,7 +29,7 @@
       "address": "127.0.0.1",
       "port": "${config:pump.apphost.backendDebugPort}",
       "preLaunchTask": "apphost:prelaunch-backend-debug",
-      "postDebugTask": "apphost:cleanup-apphost:docker",
+      "postDebugTask": "apphost:cleanup-backend-debug:docker",
       "skipFiles": ["<node_internals>/**"],
       "restart": true,
       "timeout": 120000,
@@ -46,7 +46,7 @@
       "url": "${config:pump.apphost.frontendUrl}",
       "webRoot": "${workspaceFolder}/frontend/src",
       "preLaunchTask": "apphost:frontend-only:headless",
-      "postDebugTask": "apphost:cleanup-apphost:docker",
+      "postDebugTask": "apphost:cleanup-frontend:docker",
       "runtimeArgs": [
         "--user-data-dir=${workspaceFolder}/.vscode/.edge-desktop-profile",
         "--window-size=${config:pump.apphost.browserDesktopWindowSize}",
@@ -67,7 +67,7 @@
       "url": "${config:pump.apphost.frontendUrl}",
       "webRoot": "${workspaceFolder}/frontend/src",
       "preLaunchTask": "apphost:frontend-only:headless",
-      "postDebugTask": "apphost:cleanup-apphost:docker",
+      "postDebugTask": "apphost:cleanup-frontend:docker",
       "runtimeArgs": [
         "--user-data-dir=${workspaceFolder}/.vscode/.edge-frontend-profile",
         "--window-size=${config:pump.apphost.browserMobileWindowSize}",
@@ -89,7 +89,7 @@
       "url": "${config:pump.apphost.frontendUrl}",
       "webRoot": "${workspaceFolder}/frontend/src",
       "preLaunchTask": "apphost:frontend-only:headless",
-      "postDebugTask": "apphost:cleanup-apphost:docker",
+      "postDebugTask": "apphost:cleanup-frontend:docker",
       "runtimeArgs": [
         "--user-data-dir=${workspaceFolder}/.vscode/.edge-tablet-profile",
         "--window-size=${config:pump.apphost.browserTabletWindowSize}",

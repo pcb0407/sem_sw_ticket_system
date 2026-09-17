@@ -230,7 +230,7 @@ function Install-PortableNode([string]$installRoot, [string]$architecture) {
 }
 
 function Get-AppWorkspaceRoot {
-  foreach ($environmentName in @('SEM_APP_WORKSPACE_ROOT', 'TICKET_SYSTEM_WORKSPACE_ROOT')) {
+  foreach ($environmentName in @('SEM_APP_WORKSPACE_ROOT')) {
     $workspaceRoot = [Environment]::GetEnvironmentVariable($environmentName)
     if (-not [string]::IsNullOrWhiteSpace($workspaceRoot)) {
       return [System.IO.Path]::GetFullPath($workspaceRoot)

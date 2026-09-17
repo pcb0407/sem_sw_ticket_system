@@ -13,9 +13,6 @@ $ErrorActionPreference = 'Stop'
 
 $workspaceRoot = $env:SEM_APP_WORKSPACE_ROOT
 if ([string]::IsNullOrWhiteSpace($workspaceRoot)) {
-  $workspaceRoot = $env:TICKET_SYSTEM_WORKSPACE_ROOT
-}
-if ([string]::IsNullOrWhiteSpace($workspaceRoot)) {
   $workspaceRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 } else {
   $workspaceRoot = [System.IO.Path]::GetFullPath($workspaceRoot)
