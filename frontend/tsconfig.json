@@ -14,6 +14,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@ticket-system/shared": ["../shared/src/index.ts"],
+      "react-router": ["./node_modules/react-router", "../node_modules/react-router"],
+      "react-router-dom": ["./node_modules/react-router-dom", "../node_modules/react-router-dom"],
       "react/jsx-runtime": [
         "./node_modules/@types/react/jsx-runtime.d.ts",
         "../node_modules/@types/react/jsx-runtime.d.ts"

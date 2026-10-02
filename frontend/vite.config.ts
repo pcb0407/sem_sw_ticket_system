@@ -22,6 +22,9 @@ const { loadLocalDevDefaults, resolveLocalDevConfig } = require("../scripts/loca
 
 const fallbackNodeModules = path.resolve(__dirname, "../node_modules");
 const workspaceNodeModules = resolveNodeModulesWithPackage("react", fallbackNodeModules);
+const routerNodeModules = existsSync(path.resolve(__dirname, "node_modules/react-router-dom/package.json"))
+  ? path.resolve(__dirname, "node_modules")
+  : workspaceNodeModules;
 const workspacePackages = [
   { area: "Root", packageJson: readPackageJson("../package.json") },
   { area: "Shared", packageJson: readPackageJson("../shared/package.json") },
@@ -172,8 +175,8 @@ export default defineConfig(({ mode }) => {
         { find: /^react\/jsx-dev-runtime$/, replacement: path.join(workspaceNodeModules, "react/jsx-dev-runtime.js") },
         { find: /^react-dom$/, replacement: path.join(workspaceNodeModules, "react-dom") },
         { find: /^react-dom\/client$/, replacement: path.join(workspaceNodeModules, "react-dom/client.js") },
-        { find: /^react-router$/, replacement: path.join(workspaceNodeModules, "react-router") },
-        { find: /^react-router-dom$/, replacement: path.join(workspaceNodeModules, "react-router-dom") },
+        { find: /^react-router$/, replacement: path.join(routerNodeModules, "react-router") },
+        { find: /^react-router-dom$/, replacement: path.join(routerNodeModules, "react-router-dom") },
         { find: "@tanstack/react-query", replacement: path.join(workspaceNodeModules, "@tanstack/react-query") },
       ],
       dedupe: ["react", "react-dom", "react-router", "react-router-dom", "@tanstack/react-query"],

@@ -55,4 +55,21 @@ describe("App navigation", () => {
     expect(entry).toContain('lazy(() => import("./features/tickets/TicketSettings")');
     expect(entry).not.toContain("function PumpTestRigRequestForm");
   });
+
+  it("keeps Router core and DOM aligned with the platform major version", () => {
+    const app = JSON.parse(readFileSync(path.join(currentDir, "../package.json"), "utf-8"));
+    const platform = JSON.parse(readFileSync(path.join(currentDir, "../../common-platform/packages/platform-frontend/package.json"), "utf-8"));
+    const major = (version: string) => Number(version.match(/\d+/)?.[0]);
+    expect(major(app.dependencies["react-router"])).toBe(major(platform.peerDependencies["react-router"]));
+    expect(major(app.dependencies["react-router-dom"])).toBe(major(platform.peerDependencies["react-router-dom"]));
+  });
+
+  it("uses frontend-local Router packages for shared source type and bundle resolution", () => {
+    const config = JSON.parse(readFileSync(path.join(currentDir, "../tsconfig.json"), "utf-8"));
+    const vite = readFileSync(path.join(currentDir, "../vite.config.ts"), "utf-8");
+    for (const packageName of ["react-router", "react-router-dom"]) {
+      expect(config.compilerOptions.paths[packageName][0]).toBe(`./node_modules/${packageName}`);
+      expect(vite).toContain(`path.join(routerNodeModules, "${packageName}")`);
+    }
+  });
 });
