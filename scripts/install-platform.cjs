@@ -14,7 +14,7 @@ const { ensurePlatformRoot } = require("./ensure-platform-root.cjs");
 const { resolveLocalDevConfig } = require("./local-dev-defaults.cjs");
 const { resolveLocalBuildOutputBaseRoot, resolveLocalDependencyBaseRoot } = require("./local-paths.cjs");
 
-const repoRoot = resolve(process.env.SEM_APP_WORKSPACE_ROOT || process.env.TICKET_SYSTEM_WORKSPACE_ROOT || process.env.INIT_CWD || resolve(__dirname, ".."));
+const repoRoot = resolve(process.env.SEM_SOURCE_WORKSPACE_ROOT || process.env.SEM_APP_WORKSPACE_ROOT || process.env.TICKET_SYSTEM_WORKSPACE_ROOT || process.env.INIT_CWD || resolve(__dirname, ".."));
 const platformRoot = join(repoRoot, "common-platform");
 const sourceSharedRoot = join(platformRoot, "packages", "platform-shared");
 const sourceBackendRoot = join(platformRoot, "packages", "platform-backend");
@@ -427,7 +427,6 @@ function resetPlatformWorkspaceDependencies() {
 
 function ensurePackageBuilt({ name, sourceRoot, buildRoot, distChecks, stampFile, outputArea }) {
   const currentHash = hashSourceTree(sourceRoot);
-  const distExists = distChecks.every((p) => existsSync(p));
   const stampPath = join(stampDir, stampFile);
   const cachedHash = existsSync(stampPath) ? readFileSync(stampPath, "utf8").trim() : null;
   const backendSqliteReady = name !== "@sem/platform-backend" || skipSqliteRebuild || canLoadSqlite3(platformInstallRoot);
@@ -440,10 +439,11 @@ function ensurePackageBuilt({ name, sourceRoot, buildRoot, distChecks, stampFile
   };
 
   execFileSync(process.execPath, [join(repoRoot, "scripts", "ensure-local-build-output.cjs"), outputArea], {
-    cwd: repoRoot,
+    cwd: buildRoot,
     stdio: "inherit",
     env: commandEnv,
   });
+  const distExists = distChecks.every((p) => existsSync(p));
 
   if (distExists && cachedHash === currentHash && backendSqliteReady) {
     ensureAppNodeModuleLink(name, buildRoot);
