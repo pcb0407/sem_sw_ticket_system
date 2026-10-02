@@ -10,7 +10,7 @@ const consoleContext = normalizeConsoleContext(process.env.TICKET_SYSTEM_CONSOLE
 const consoleMode = String(process.env.TICKET_SYSTEM_APPHOST_CONSOLE_MODE || "default").trim().toLowerCase();
 const quietSummary = consoleMode === "compact" || consoleMode === "quiet";
 
-const workspaceRoot = path.resolve(__dirname, "..");
+const workspaceRoot = path.resolve(process.env.SEM_SOURCE_WORKSPACE_ROOT || path.join(__dirname, ".."));
 const localDevConfig = resolveLocalDevConfig(workspaceRoot);
 
 const nodeMajor = process.versions.node.split(".")[0];
@@ -99,6 +99,7 @@ const areaConfigs = {
   },
   frontend: {
     outputPath: resolveOutputPath("frontend"),
+    linkPath: path.join(externalDependencyRoot, "frontend", "dist"),
     cleanFiles: [path.join(externalOutputRoot, "frontend", "tsconfig.tsbuildinfo")],
   },
   shared: {
