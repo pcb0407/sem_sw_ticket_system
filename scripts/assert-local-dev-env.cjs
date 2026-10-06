@@ -63,11 +63,11 @@ const [nodeMajor, nodeMinor] = process.versions.node
   .split(".")
   .map((part) => Number.parseInt(part, 10));
 
-if (nodeMajor !== 20 || nodeMinor !== 19) {
+if (nodeMajor !== 20 || nodeMinor < 19) {
   reinvokeWithWorkspaceNodeIfPossible();
   fail(
     `Detected unsupported Node.js version '${process.versions.node}'. ` +
-      "Use Node.js 20.19.x for local development in this repository.",
+      "Use Node.js 20.19.0 or newer in Node 20 for local development in this repository.",
   );
 }
 
