@@ -6,6 +6,7 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Socket } from "node:net";
 
 const require = createRequire(import.meta.url);
+const { getPlatformRuntimeAliases } = require("../common-platform/scripts/install-consumer-platform.cjs");
 const reactPlugins = loadReactPlugins();
 const postcssImport = require("postcss-import");
 const tailwindcss = require("tailwindcss");
@@ -153,6 +154,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       preserveSymlinks: true,
       alias: [
+        ...getPlatformRuntimeAliases(path.resolve(__dirname, "../common-platform")),
         { find: /^@$/, replacement: path.resolve(__dirname, "src") },
         { find: "@sem/platform-frontend/styles/index.css", replacement: path.resolve(workspaceRoot, "common-platform/packages/platform-frontend/src/styles/index.css") },
         { find: "@sem/platform-frontend/app", replacement: path.resolve(workspaceRoot, "common-platform/packages/platform-frontend/src/app/index.ts") },

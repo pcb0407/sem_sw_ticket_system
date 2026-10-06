@@ -17,11 +17,11 @@ import { TicketRequestModule } from "./ticket-request/ticket-request.module";
 const ticketSystemBackendRoot = path.resolve(__dirname, "..");
 preloadBackendEnvFiles(ticketSystemBackendRoot);
 
-const ticketSystemMigrationGlob = path.join(
+const ticketSystemMigrationGlob = (dbType: string) => path.join(
   __dirname,
   "database",
   "migrations",
-  resolveMigrationFolderDbType(),
+  resolveMigrationFolderDbType({ DB_TYPE: dbType }),
   "*.{ts,js}",
 );
 
@@ -32,7 +32,7 @@ const platformBackend = createPlatformBackendModuleSetup({
   typeOrm: {
     buildContext: {
       extraEntities: [TicketRequestMasterOptionEntity, TicketRequestEntity, TicketRequestAttachmentEntity],
-      extraMigrationGlobs: [ticketSystemMigrationGlob],
+      extraMigrationGlobs: (dbType) => [ticketSystemMigrationGlob(dbType)],
     },
   },
   system: {
